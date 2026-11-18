@@ -249,10 +249,10 @@ const P = [
  ["Vaso 500 ml","Promocionales","2025/10/01_Vaso_500_Promo.png"],
  ["Copa Balón","Heladería","2025/07/Copa-Balon.png"],["Copa Italia","Heladería","2025/07/Copa-Italia.png"],
  ["Copa Sorpresa","Heladería","2025/07/Copa-Sorpresa.png"],["Mini Copa Cono","Heladería","2025/07/Mini-Copa-Cono.png"],
- ["Cuchara 18 cm","Cucharas y mangos","2025/07/Cuchara-18-cm.png"],["Cuchara Avión","Cucharas y mangos","2025/07/Cuchara-Avion.png"],
- ["Cuchara Paleta","Cucharas y mangos","2025/07/Cuchara-Paleta.png"],["Cuchara Postre","Cucharas y mangos","2025/07/Cuchara-Postre.png"],
- ["Cuchara Larga Logo","Cucharas y mangos","2025/07/Cuchara-larga-logo.png"],["Revolvedor de Trago","Cucharas y mangos","2025/07/Revolvedor-de-trago.png"],
- ["Pincha Cocktail","Cucharas y mangos","2025/07/Pincha-Cocktail.png"],
+ ["Cuchara 18 cm","Cucharas","2025/07/Cuchara-18-cm.png"],["Cuchara Avión","Cucharas","2025/07/Cuchara-Avion.png"],
+ ["Cuchara Paleta","Cucharas","2025/07/Cuchara-Paleta.png"],["Cuchara Postre","Cucharas","2025/07/Cuchara-Postre.png"],
+ ["Cuchara Larga Logo","Cucharas","2025/07/Cuchara-larga-logo.png"],["Revolvedor de Trago","Cucharas","2025/07/Revolvedor-de-trago.png"],
+ ["Pincha Cocktail","Cucharas","2025/07/Pincha-Cocktail.png"],
  ["Dispensador 150","Laboratorio","2025/07/Dispensador-150.png"],["Dispensador 300","Laboratorio","2025/07/Dispensador-300.png"],
  ["Dispensador 500","Laboratorio","2025/07/Dispensador-500.png"],["Jabonera Dove","Laboratorio","2025/07/Jabonera-Dove.png"]
 ].map(([n,c,u])=>({name:n,cat:c,url:B+u}));
@@ -268,12 +268,12 @@ const CLAVES = {"Cuchara":"cuchara mango cucharita helado","Revolvedor":"revolve
 const GROUPS = [
  {id:"Hasta 250",big:"250",unit:"ml/g o menos",h:46},{id:"251 a 500",big:"500",unit:"251 a 500 ml/g",h:62},
  {id:"501 a 1000",big:"1 L",unit:"501 a 1000 ml/g",h:78},{id:"Más de 1 L",big:"+1 L",unit:"más de un litro",h:96},
- {id:"Promocionales",big:"Promocionales",unit:"baldes y vasos",wide:true},{id:"Cucharas y mangos",big:"Cucharas y mangos",unit:"logo en el mango",wide:true},{id:"Otros formatos",big:"Otros formatos",unit:"tamaño a consultar",wide:true}
+ {id:"Promocionales",big:"Promocionales",unit:"baldes y vasos",wide:true},{id:"Cucharas",big:"Cucharas",unit:"con tu logo en el mango",wide:true},{id:"Otros formatos",big:"Otros formatos",unit:"tamaño a consultar",wide:true}
 ];
 function norm(t){return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
 P.forEach(p=>{
   p.size = SIZE[p.name]||0;
-  p.group = p.cat==="Promocionales" ? "Promocionales" : p.cat==="Cucharas y mangos" ? "Cucharas y mangos" : !p.size ? "Otros formatos"
+  p.group = p.cat==="Promocionales" ? "Promocionales" : p.cat==="Cucharas" ? "Cucharas" : !p.size ? "Otros formatos"
     : p.size<=250 ? "Hasta 250" : p.size<=500 ? "251 a 500" : p.size<=1000 ? "501 a 1000" : "Más de 1 L";
   p.sizeLbl = p.size ? (p.size>=1000 ? (p.size/1000)+" L" : p.size+" ml/g") : "";
   const k = Object.keys(CLAVES).filter(w=>p.name.includes(w)).map(w=>CLAVES[w]).join(" ");
