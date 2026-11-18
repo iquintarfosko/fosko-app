@@ -269,7 +269,7 @@ svg.defs{position:absolute;width:0;height:0}
     </div>
     <form class="cbody" id="cform" autocomplete="on">
       <div class="done" id="cres" style="font-size:15px"></div>
-      <div class="cards two hidden" id="cOpt"><button type="button" class="card" data-popt="IML" aria-pressed="true"><b>Etiqueta IML</b><i>Integrada al balde</i></button><button type="button" class="card" data-popt="Autoadhesiva" aria-pressed="false"><b>Autoadhesiva</b><i>Sticker sobre el balde</i></button></div>
+      <div class="cards hidden" id="cOpt"></div>
       <label class="fld"><span>Empresa</span><input class="in" id="c_emp" type="text" autocomplete="organization" required></label>
       <label class="fld"><span>Nombre</span><input class="in" id="c_nom" type="text" autocomplete="name" required></label>
       <label class="fld"><span>Cargo <span class="opt">(opcional)</span></span><input class="in" id="c_car" type="text" autocomplete="organization-title"></label>
@@ -460,11 +460,14 @@ function resizeDataUrl(url,max,type){ return new Promise(res=>{ const i=new Imag
 
 // ================= Asistente de 6 pasos =================
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbywljcd-byWuqxqWxvlcB05NSkL0NUCYrY8-NhW1yLrzh4wlho4U5GHJ8NIBFA8Aj5y/exec";
-const S = {tipo:"",marca:"",logo:null,mask:null,ratio:1,palette:[],pote:"#FBC10A",tapa:"#FFFFFF",etq:"",donde:"",step:0,env:null};
+const S = {tipo:"",marca:"",logo:null,mask:null,ratio:1,palette:[],pote:"#FBC10A",tapa:"#FFFFFF",etq:"",donde:"",step:0,env:null,etqW:""};
 // Envases que NO se pueden hacer con IML (solo autoadhesiva). Agregar aquí los nombres tal como aparecen en el catálogo.
 const SOLO_AUTO = [];
 // Baldes: llevan etiqueta IML o autoadhesiva (sin relieve). Los demás promocionales: solo color y logo en relieve.
 const PROMO_IML = ["Balde 3 Lts","Balde 5 Lts"];
+// Envases con opciones de etiqueta propias (los demás: IML o autoadhesiva a elección del cliente; promocionales: solo relieve).
+const OPCIONES = {"Baúl Rectangular":["IML","Autoadhesiva","Sin etiqueta"],"Baúl Rectangular 2 Lts":["IML","Autoadhesiva","Sin etiqueta"],"Pote Piber":["Autoadhesiva","Sin etiqueta"],"Balde 3 Lts":["IML","Autoadhesiva"],"Balde 5 Lts":["IML","Autoadhesiva"]};
+const OPT_INFO = {"IML":"Integrada al envase","Autoadhesiva":"Sticker sobre el envase","Sin etiqueta":"Envase liso, solo color"};
 const PRESETS = ["#FFFFFF","#0D0D0E","#FBC10A","#C8102E","#0057B8","#1B8A3A"];
 const SCREENS = ["wiz","home","conf","quote","view","admin"];
 function show(id){ SCREENS.forEach(x=>$(x).classList.toggle("hidden",x!==id)); }
@@ -483,7 +486,7 @@ function goStep(n){
 }
 document.querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{ S.tipo=b.dataset.tipo; S.etq=""; S.donde=isPromo()?"Relieve":""; pressCards("data-etq",""); pressCards("data-donde",""); goStep(1); });
 function pressCards(attr,val){ document.querySelectorAll("["+attr+"]").forEach(x=>x.setAttribute("aria-pressed",String(x.getAttribute(attr)===val))); }
-document.querySelectorAll("[data-etq]").forEach(b=>b.onclick=()=>{ S.etq=b.dataset.etq; pressCards("data-etq",S.etq); });
+document.querySelectorAll("[data-etq]").forEach(b=>b.onclick=()=>{ S.etq=S.etqW=b.dataset.etq; pressCards("data-etq",S.etq); });
 document.querySelectorAll("[data-donde]").forEach(b=>b.onclick=()=>{ S.donde=b.dataset.donde; pressCards("data-donde",S.donde); });
 $("wBack").onclick=()=>goStep(Math.max(0,S.step-1));
 $("wNext").onclick=()=>{
@@ -532,26 +535,28 @@ function mkSw(id,key){
 function setColor(c){ document.documentElement.style.setProperty("--c",c); $("flood").setAttribute("flood-color",c); }
 function drawLogo(){
   const el=$("logo"), rel=S.donde==="Relieve", pos=isPromo()?[50,56]:[50,26];
+  if(ETQ()==="Sin etiqueta" && !rel){ el.className="logo hidden"; return; }
   el.className="logo "+(rel?"relieve":"print");
   el.style.left=pos[0]+"%"; el.style.top=pos[1]+"%"; el.style.width="32%"; el.style.aspectRatio=String(S.ratio);
   el.style.backgroundImage = rel ? "none" : "url("+S.logo+")"; el.style.setProperty("--m","url("+S.mask+")");
 }
 function colorTxt(){ return isPromo() ? "Color "+S.pote : "Pote "+S.pote+" · Tapa "+S.tapa; }
-function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.etq==="IML"&&ETQ()!=="IML"?"\nNota: este envase solo se fabrica con etiqueta autoadhesiva.":""); }
+function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.nota?"\nNota: "+S.nota:""); }
 function pickEnvase(p){
-  S.env=p; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
+  S.env=p; S.nota=""; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
   const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
-  const bal=isPromo()&&PROMO_IML.includes(p.name);
-  if(isPromo()){ if(bal){ S.etq="IML"; S.donde="Etiqueta"; } else { S.etq=""; S.donde="Relieve"; } }
-  $("cOpt").classList.toggle("hidden",!bal); pressCards("data-popt","IML");
+  let opts=OPCIONES[p.name]||[]; S.nota="";
+  if(isPromo()){ if(opts.length){ S.etq="IML"; S.donde="Etiqueta"; } else { S.etq=""; S.donde="Relieve"; } }
+  else { S.etq=S.etqW; if(opts.length && !opts.includes(S.etq)){ S.nota="Este envase no admite etiqueta "+S.etq+"; se ajustó a "+opts[0]+"."; S.etq=opts[0]; } }
+  const box=$("cOpt"); box.innerHTML=""; box.classList.toggle("hidden",!opts.length);
+  opts.forEach(o=>{ const bt=document.createElement("button"); bt.type="button"; bt.className="card"; bt.dataset.popt=o; bt.innerHTML="<b>"+o+"</b><i>"+OPT_INFO[o]+"</i>"; bt.onclick=()=>pickOpt(o); box.appendChild(bt); });
+  pressCards("data-popt",S.etq);
   $("hex").textContent=colorTxt(); drawLogo(); $("cres").textContent=resumenSel();
   $("cnote").textContent="Te enviamos el mockup a tu correo. Desde ahí podrás pedir tu cotización.";
   $("cSend").disabled=false; $("cSend").classList.remove("hidden"); $("cform").querySelectorAll(".fld").forEach(x=>x.classList.remove("hidden"));
   show("conf");
 }
-document.querySelectorAll("[data-popt]").forEach(b=>b.onclick=()=>{
-  S.etq=b.dataset.popt; S.donde="Etiqueta"; pressCards("data-popt",b.dataset.popt); drawLogo(); $("cres").textContent=resumenSel();
-});
+function pickOpt(o){ S.etq=o; S.nota=""; if(isPromo()) S.donde="Etiqueta"; pressCards("data-popt",o); $("hex").textContent=colorTxt(); drawLogo(); $("cres").textContent=resumenSel(); }
 $("cBack").onclick=()=>show("home");
 async function postJSON(obj){
   const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
@@ -561,7 +566,7 @@ $("cform").onsubmit=async e=>{
   e.preventDefault();
   const g=id=>$(id).value.trim();
   const cpv={"Cliente":g("c_emp"),"Producto Fosko":S.env.name,"Producto Cliente":S.marca,"Tipo":isPromo()?"Promoción":"Línea","Color":colorTxt(),
-    "Etiqueta":ETQ()||"N/A","En donde lleva la etiqueta?":S.donde==="Relieve"?"":(isPromo()?"Cuerpo":"Tapa"),"Lleva marca en relieve?":S.donde==="Relieve"?"SI":"NO"};
+    "Etiqueta":ETQ()||"N/A","En donde lleva la etiqueta?":(S.donde==="Relieve"||ETQ()==="Sin etiqueta")?"":(isPromo()?"Cuerpo":"Tapa"),"Lleva marca en relieve?":S.donde==="Relieve"?"SI":"NO"};
   const contacto={"Nombre":g("c_nom"),"Cargo":g("c_car"),"Mail":g("c_mail"),"Fono":g("c_fono")};
   const deco="SOLICITUD DE MOCKUP · "+resumenSel().replace(/\n/g," · ");
   const resumen="SOLICITUD DE MOCKUP DESDE APP FOSKO\nEmpresa: "+cpv.Cliente+"\n"+resumenSel()+"\nNombre: "+contacto.Nombre+"\nCargo: "+contacto.Cargo+"\nMail: "+contacto.Mail+"\nFono: "+contacto.Fono;
