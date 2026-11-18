@@ -149,6 +149,35 @@ input[type=file]{display:none}
 .done{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;white-space:pre-wrap;font-size:14px;line-height:1.45}
 svg.defs{position:absolute;width:0;height:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ---------- Asistente (pasos) ---------- */
+#quote{transform:none!important;visibility:visible!important;z-index:auto!important;transition:none!important}
+.wbody{flex:1;overflow-y:auto;padding:8px 18px 16px;display:flex;flex-direction:column;gap:14px}
+.wnav{flex:none;display:flex;gap:10px;padding:10px 18px calc(14px + env(safe-area-inset-bottom))}
+.wnav .btn.alt{flex:0 0 32%}
+.wtitle{font-family:var(--display);font-weight:800;font-size:40px;line-height:.95;margin:6px 0 0;text-wrap:balance}
+.wtitle em{font-style:normal;color:var(--accent)}
+.wsub{color:var(--muted);font-size:16px;text-wrap:balance}
+.cards{display:grid;grid-template-columns:1fr;gap:12px}
+.cards.two{grid-template-columns:1fr 1fr}
+.card{background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.04));border:1.5px solid var(--line);border-radius:22px;padding:18px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:110px;justify-content:center}
+.card b{font-family:var(--display);font-size:32px;font-weight:800;line-height:1}
+.card i{font-style:normal;font-size:14px;color:var(--muted);line-height:1.25}
+.card[aria-pressed="true"]{border-color:var(--accent);background:linear-gradient(160deg,rgba(251,193,10,.28),rgba(251,193,10,.08))}
+.card:active{transform:scale(.98)}
+.up{display:flex;align-items:center;gap:14px}
+.up .lt{width:96px;height:96px;border-radius:18px;background:#fff center/contain no-repeat;border:2px solid var(--line);flex:none}
+.in{width:100%;height:54px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:#fff;padding:0 14px;font:500 17px var(--body)}
+.cg{display:flex;flex-direction:column;gap:8px}
+.cg h3{margin:0;font-family:var(--display);font-size:22px;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+.cg .sw{justify-content:flex-start;flex-wrap:wrap;min-height:0}
+.cg .sw button{width:46px;height:46px}
+.cg input[type=color]{width:46px;height:46px;border-radius:50%;border:2px dashed var(--line);background:none;padding:0}
+.err{color:#ff8a7a;font-size:14px;min-height:18px;text-align:center}
+.cstage{height:300px;margin:0 18px;flex:none}
+.cbody{flex:1;overflow-y:auto;padding:12px 18px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.mock{margin:0 18px;border-radius:24px;overflow:hidden;background:#fff;flex:none;display:grid;place-items:center;min-height:240px}
+.mock img{width:100%;display:block}
+.chead{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 6px}
 </style>
 </head>
 <body>
@@ -159,15 +188,64 @@ svg.defs{position:absolute;width:0;height:0}
     <feBlend in="SourceGraphic" in2="s" mode="multiply"/>
   </filter>
 </svg>
-
 <div id="app">
-  <section class="screen" id="home">
+  <!-- Pasos 1 a 5 -->
+  <section class="screen" id="wiz">
+    <div class="chead">
+      <img src="https://fosko.cl/wp-content/uploads/2022/05/Logo-Fosko_White.png" alt="FOSKO" style="height:34px" onerror="this.outerHTML='<span class=wm style=font-family:var(--display);font-weight:800;font-size:32px>FOSKO</span>'">
+      <span class="steps" id="stepLbl"></span>
+    </div>
+    <div class="wbody">
+      <div class="pnl" id="p0">
+        <h1 class="wtitle">¿Qué mockup quieres: de <em>envase</em> o de <em>promocional</em>?</h1>
+        <div class="wsub">Te armamos una imagen con tu marca sobre un producto FOSKO real.</div>
+        <div class="cards">
+          <button class="card" data-tipo="envase"><b>Envase</b><i>Potes, baúles, copas, dispensadores</i></button>
+          <button class="card" data-tipo="promo"><b>Promocional</b><i>Baldes, vasos y cucharas con tu logo</i></button>
+        </div>
+      </div>
+      <div class="pnl hidden" id="p1">
+        <h1 class="wtitle">Carga una foto de tu <em>logo</em></h1>
+        <div class="wsub">Sácale una foto o súbelo desde tu galería.</div>
+        <div class="up"><div class="lt" id="logoPv"></div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+            <button class="btn main" id="cam" style="height:52px">Tomar foto</button>
+            <button class="btn alt" id="gal" style="flex:none;height:46px">Galería</button></div></div>
+        <label class="fld"><span>Nombre de tu marca</span><input class="in" id="marca" type="text" placeholder="Ej. Sal Lobos" autocomplete="off"></label>
+      </div>
+      <div class="pnl hidden" id="p2">
+        <h1 class="wtitle">Elige los <em>colores</em></h1>
+        <div class="cg"><h3>Color del <span id="lblPote">pote</span></h3><div class="sw" id="swPote"></div></div>
+        <div class="cg" id="gTapa"><h3>Color de la tapa</h3><div class="sw" id="swTapa"></div></div>
+        <div class="wsub">Salen de tu logo; también puedes elegir otro con el círculo punteado.</div>
+      </div>
+      <div class="pnl hidden" id="p3">
+        <h1 class="wtitle">¿Qué tipo de <em>etiqueta</em>?</h1>
+        <div class="cards">
+          <button class="card" data-etq="IML"><b>Etiqueta IML</b><i>Se funde con el envase al inyectarlo: queda integrada, no se despega.</i></button>
+          <button class="card" data-etq="Autoadhesiva"><b>Autoadhesiva</b><i>Sticker pegado sobre el envase ya fabricado.</i></button>
+        </div>
+      </div>
+      <div class="pnl hidden" id="p4">
+        <h1 class="wtitle">¿Dónde va tu <em>marca</em>?</h1>
+        <div class="cards">
+          <button class="card" data-donde="Etiqueta en tapa"><b id="dEtq">Etiqueta en la tapa</b><i>Tu logo impreso en la tapa.</i></button>
+          <button class="card" data-donde="Relieve"><b>Relieve</b><i>Tu logo en relieve (apostillado). Se fabrica con molde y se cotiza aparte.</i></button>
+        </div>
+      </div>
+      <div class="err" id="werr"></div>
+    </div>
+    <div class="wnav"><button class="btn alt" id="wBack">Atrás</button><button class="btn main" id="wNext">Siguiente</button></div>
+  </section>
+
+  <!-- Paso 5: elegir envase -->
+  <section class="screen hidden" id="home">
     <div class="top">
-      <button class="brand" id="brand" aria-label="Inicio">
-        <img src="https://fosko.cl/wp-content/uploads/2022/05/Logo-Fosko_White.png" alt="FOSKO" onerror="this.outerHTML='<span class=wm>FOSKO</span>'">
-        <span class="steps"><b>1</b> Elige <b>2</b> Foto <b>3</b> Viste</span>
-      </button>
-      <h1>Viste tu envase con <em>tu marca</em></h1>
+      <div class="brand">
+        <button class="back" id="hBack" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <span class="steps"><b>Paso 6</b> de 6</span>
+      </div>
+      <h1>Elige el <em>envase</em> que quieres vestir</h1>
       <div class="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <input id="q" type="search" placeholder="Palabra clave o marca" aria-label="Buscar envase" autocomplete="off">
@@ -178,53 +256,55 @@ svg.defs{position:absolute;width:0;height:0}
     <div class="grid" id="grid"></div>
   </section>
 
-  <section class="screen" id="studio" aria-hidden="true">
+  <!-- Confirmar y enviar solicitud -->
+  <section class="screen hidden" id="conf">
     <div class="bar">
-      <button class="back" id="back" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <h2><span id="pname"></span><small id="psize"></small></h2>
+      <button class="back" id="cBack" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2><span id="cname"></span><small>Vista referencial</small></h2>
     </div>
-    <div class="stage">
-      <div class="badge hidden" id="badge"><i></i><span id="hex"></span></div>
-      <div class="busy hidden" id="busy"><div class="spin"></div><div id="busyMsg">Creando tu envase con IA…<br><small style="font-weight:400;color:var(--muted)">Toma entre 15 y 40 segundos</small></div></div>
-      <div class="prod">
-        <img id="pimg" alt="">
-        <div class="label hidden" id="lbl"></div>
-        <div class="logo hidden" id="logo" role="img" aria-label="Tu logo"></div>
-      </div>
+    <div class="stage cstage">
+      <div class="badge" id="badge"><i></i><span id="hex"></span></div>
+      <div class="prod"><img id="pimg" alt=""><div class="logo hidden" id="logo" role="img" aria-label="Tu logo"></div></div>
     </div>
-    <div class="sheet">
-      <div class="tabs" id="tabs" role="tablist"><button data-t="color" aria-pressed="true">Color</button><button data-t="logo" aria-pressed="false">Logo y relieve</button></div>
-      <div class="pnl" id="pColor">
-        <div class="hint" id="hint">Toma una foto de la marca o producto que quieres imitar.</div>
-        <div class="sw" id="sw"></div>
-        <label class="toggle hidden" id="lblRow"><span>Mostrar la foto como etiqueta</span><input type="checkbox" id="lblChk"></label>
-        <div class="ai hidden" id="aiBox">
-          <b>Que FOSKO vista tu envase</b>
-          <input type="text" id="aiMarca" placeholder="¿Con qué marca? (ej. Sal Lobos)" aria-label="Marca o producto">
-          <div class="seg sm" id="aiMode"><button type="button" data-v="opaco" aria-pressed="true">Opaco IML</button><button type="button" data-v="translucido" aria-pressed="false">Translúcido</button></div>
-          <button class="btn main" id="aiGo" type="button">Pedir mi envase vestido</button>
-          <button class="btn alt hidden" id="aiBack" type="button" style="flex:none;height:46px">Ver envase original</button>
-        </div>
-        <div class="row">
-          <button class="btn main" id="cam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Tomar foto</button>
-          <button class="btn alt" id="gal">Galería</button>
-        </div>
-      </div>
-      <div class="pnl hidden" id="pLogo">
-        <div class="hint" id="lhint">Sube tu logo para ponerlo en la tapa, el cuerpo o el mango de una cuchara. Arrástralo para moverlo.</div>
-        <button class="btn main" id="addLogo">Agregar mi logo</button>
-        <div class="seg sm" id="segMode"><button type="button" data-v="print" aria-pressed="true">Impreso</button><button type="button" data-v="relieve" aria-pressed="false">Relieve (apostillado)</button></div>
-        <div class="seg sm seg3" id="segPlace"><button type="button" data-v="Cuerpo" aria-pressed="true">Cuerpo</button><button type="button" data-v="Tapa" aria-pressed="false">Tapa</button><button type="button" data-v="Mango" aria-pressed="false">Mango</button></div>
-        <label class="rng">Tamaño<input type="range" id="lsize" min="12" max="80" value="34"></label>
-        <button class="btn alt" id="rmLogo" style="flex:none;height:46px">Quitar logo</button>
-      </div>
-      <input type="file" id="fileLogo" accept="image/*">
-      <button class="btn quote hidden" id="toQuote">Versión final: pedir cotización</button>
-      <input type="file" id="fileCam" accept="image/*" capture="environment">
-      <input type="file" id="fileGal" accept="image/*">
-    </div>
+    <form class="cbody" id="cform" autocomplete="on">
+      <div class="done" id="cres" style="font-size:15px"></div>
+      <label class="fld"><span>Empresa</span><input class="in" id="c_emp" type="text" autocomplete="organization" required></label>
+      <label class="fld"><span>Nombre</span><input class="in" id="c_nom" type="text" autocomplete="name" required></label>
+      <label class="fld"><span>Cargo <span class="opt">(opcional)</span></span><input class="in" id="c_car" type="text" autocomplete="organization-title"></label>
+      <label class="fld"><span>Mail</span><input class="in" id="c_mail" type="email" autocomplete="email" required></label>
+      <label class="fld"><span>Fono <span class="opt">(opcional)</span></span><input class="in" id="c_fono" type="tel" autocomplete="tel"></label>
+      <button class="btn main" type="submit" id="cSend">Pedir mi mockup</button>
+      <div class="note" id="cnote">Te enviamos el mockup a tu correo. Desde ahí podrás pedir tu cotización.</div>
+    </form>
   </section>
-  <section class="screen" id="quote" aria-hidden="true">
+
+  <!-- Mockup compartido con el cliente -->
+  <section class="screen hidden" id="view">
+    <div class="chead"><img src="https://fosko.cl/wp-content/uploads/2022/05/Logo-Fosko_White.png" alt="FOSKO" style="height:34px"><span class="steps" id="vfolio"></span></div>
+    <div class="wbody">
+      <h1 class="wtitle" id="vtitle">Tu mockup <em>FOSKO</em></h1>
+      <div class="mock"><img id="vimg" alt="Mockup de tu envase"></div>
+      <div class="wsub" id="vsub"></div>
+    </div>
+    <div class="wnav"><button class="btn main" id="vQuote">Cotizar</button></div>
+  </section>
+
+  <!-- Panel interno para Nacho -->
+  <section class="screen hidden" id="admin">
+    <div class="chead"><span class="wm" style="font-family:var(--display);font-weight:800;font-size:30px">FOSKO · Enviar mockup</span></div>
+    <form class="cbody" id="aform">
+      <label class="fld"><span>Clave</span><input class="in" id="a_clave" type="password" required></label>
+      <label class="fld"><span>Folio de la solicitud</span><input class="in" id="a_folio" type="text" placeholder="APP-261118-1" required></label>
+      <label class="fld"><span>Marca del cliente</span><input class="in" id="a_marca" type="text"></label>
+      <label class="fld"><span>Envase FOSKO</span><input class="in" id="a_env" type="text" placeholder="Pote Cuadrado 800g"></label>
+      <label class="fld"><span>Imagen del mockup</span><input class="in" id="a_img" type="file" accept="image/*" style="display:block;padding-top:14px" required></label>
+      <button class="btn main" type="submit" id="aSend">Subir y crear link</button>
+      <div class="done hidden" id="aout"></div>
+      <button class="btn alt hidden" type="button" id="aCopy" style="flex:none;width:100%">Copiar texto del correo</button>
+    </form>
+  </section>
+
+  <section class="screen hidden" id="quote" aria-hidden="true">
     <div class="bar">
       <button class="back" id="qback" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <h2><span>Pedir cotización</span><small>Respondemos a la brevedad</small></h2>
@@ -238,6 +318,7 @@ svg.defs{position:absolute;width:0;height:0}
       <button class="btn alt hidden" type="button" id="copy" style="flex:none;width:100%">Copiar resumen</button>
     </form>
   </section>
+<input type="file" id="fileCam" accept="image/*" capture="environment"><input type="file" id="fileGal" accept="image/*">
 </div>
 
 <script>
@@ -309,7 +390,7 @@ function bucket(){return '<svg viewBox="0 0 84 100" aria-hidden="true"><path d="
 function renderChips(){
   const box=$("chips"); box.innerHTML="";
   box.classList.toggle("hidden", !cat && !$("q").value.trim());
-  [{id:"Todos"},...GROUPS].forEach(g=>{
+  [{id:"Todos"},...groupsFor()].forEach(g=>{
     const b=document.createElement("button"); b.className="chip"; b.textContent=g.id==="Todos"?"Todos":g.id;
     b.setAttribute("aria-pressed",String(g.id===cat));
     b.onclick=()=>{cat=g.id;renderGrid();}; box.appendChild(b);
@@ -320,8 +401,8 @@ function renderGrid(){
   renderChips();
   if(!cat && !q){
     g.insertAdjacentHTML("beforeend",'<div class="ask">Elige el tamaño</div>');
-    GROUPS.forEach((o,i)=>{
-      const n = P.filter(p=>p.group===o.id).length;
+    groupsFor().forEach((o,i)=>{
+      const n = vis().filter(p=>p.group===o.id).length;
       const b=document.createElement("button"); b.className="size"+(o.wide?" wide":""); b.style.setProperty("--i",i);
       b.innerHTML=(o.wide ? '<span><b>'+o.big+'</b><br><i>'+o.unit+' · '+n+'</i></span>'+(o.id==="Promocionales"?bucket():"")
                           : tub(o.h)+'<b>'+o.big+'</b><i>'+o.unit+'<br>'+n+(n===1?' envase':' envases')+'</i>');
@@ -331,7 +412,7 @@ function renderGrid(){
     return;
   }
   const words = q.split(/\s+/).filter(Boolean);
-  const list = P.filter(p => (!cat||cat==="Todos"||p.group===cat) && words.every(w=>p.tags.includes(w)));
+  const list = vis().filter(p => (!cat||cat==="Todos"||p.group===cat) && words.every(w=>p.tags.includes(w)));
   if(!list.length){ g.innerHTML='<div class="empty">No encontramos ese envase. Prueba con otra palabra o quita el filtro de tamaño.</div>'; return; }
   list.forEach((p,i)=>{
     const t=document.createElement("button"); t.className="tile"; t.style.setProperty("--i",Math.min(i,8));
@@ -340,7 +421,7 @@ function renderGrid(){
     im.onerror=()=>{ph.innerHTML='<span class="fallback">'+p.name+'</span>';};
     ph.appendChild(im); t.appendChild(ph);
     t.insertAdjacentHTML("beforeend",'<div class="nm">'+p.name+'</div><div class="ct">'+(p.sizeLbl||p.cat)+'</div>');
-    t.onclick=()=>openStudio(p); g.appendChild(t);
+    t.onclick=()=>pickEnvase(p); g.appendChild(t);
   });
 }
 SUGERIDAS.forEach(s=>{
@@ -348,37 +429,12 @@ SUGERIDAS.forEach(s=>{
   b.onclick=()=>{$("q").value=s;renderGrid();}; $("brands").appendChild(b);
 });
 $("q").oninput = renderGrid;
-$("brand").onclick = ()=>{cat=null;$("q").value="";renderGrid();};
 
-function setColor(c){
-  document.documentElement.style.setProperty("--c",c);
-  $("flood").setAttribute("flood-color",c);
-}
-var openStudio=function(p){
-  photoURL = null;
-  $("pname").textContent = p.name; $("psize").textContent = p.sizeLbl || p.cat;
-  const im=$("pimg"); im.classList.remove("tinted"); im.src=p.url; im.alt=p.name;
-  $("sw").innerHTML=""; $("lbl").classList.add("hidden"); $("lblRow").classList.add("hidden"); $("lblChk").checked=false; $("badge").classList.add("hidden");
-  $("hint").textContent="Toma una foto de la marca o producto que quieres imitar.";
-  setColor("#FBC10A");
-  $("studio").classList.add("open"); $("studio").setAttribute("aria-hidden","false");
-}
-$("back").onclick=()=>{ $("studio").classList.remove("open"); $("studio").setAttribute("aria-hidden","true"); };
 
-$("cam").onclick=()=>$("fileCam").click();
-$("gal").onclick=()=>$("fileGal").click();
-["fileCam","fileGal"].forEach(id=>$(id).onchange=e=>{
-  const f=e.target.files&&e.target.files[0]; if(!f) return;
-  if(photoURL) URL.revokeObjectURL(photoURL);
-  photoURL=URL.createObjectURL(f);
-  const img=new Image();
-  img.onload=()=>{ showPalette(extract(img));
-    const k=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
-    c.getContext("2d").drawImage(img,0,0,c.width,c.height); photoThumb=c.toDataURL("image/jpeg",.8); };
-  img.onerror=()=>{$("hint").textContent="No pudimos leer esa foto. Prueba con otra.";};
-  img.src=photoURL; e.target.value="";
-});
-
+const PROMO = g => g==="Promocionales"||g==="Cucharas";
+function vis(){ return P.filter(p=>S.tipo==="promo" ? PROMO(p.group) : !PROMO(p.group)); }
+function groupsFor(){ return GROUPS.filter(g=>S.tipo==="promo" ? PROMO(g.id) : !PROMO(g.id)); }
+function startCatalog(){ cat = S.tipo==="promo" ? "Todos" : null; renderGrid(); }
 // Hasta 5 colores dominantes; favorece colores de marca frente a grises
 function extract(img){
   const s=64,c=document.createElement("canvas"); c.width=c.height=s;
@@ -398,110 +454,112 @@ function extract(img){
   for(const col of arr){ if(out.every(o=>Math.hypot(o[0]-col[0],o[1]-col[1],o[2]-col[2])>60)) out.push(col); if(out.length===5) break; }
   return out.map(a=>"#"+a.map(v=>Math.round(v).toString(16).padStart(2,"0")).join(""));
 }
-function showPalette(cols){
-  const sw=$("sw"); sw.innerHTML="";
-  if(!cols.length){ $("hint").textContent="No detectamos colores claros. Acércate más a la marca."; return; }
-  const th=document.createElement("div"); th.className="thumb"; th.style.backgroundImage="url("+photoURL+")"; sw.appendChild(th);
-  cols.forEach((c,i)=>{
-    const b=document.createElement("button"); b.style.background=c; b.setAttribute("aria-label","Color "+c);
-    b.onclick=()=>pick(c,b); sw.appendChild(b); if(i===0) pick(c,b);
-  });
-  $("hint").textContent="Toca un color para vestir el envase.";
-  $("lblRow").classList.remove("hidden"); $("aiBox").classList.remove("hidden"); $("lbl").style.backgroundImage="url("+photoURL+")";
-  $("cam").lastChild.textContent="Otra foto";
-}
-var pick=function(c,btn){
-  document.querySelectorAll("#sw button").forEach(x=>x.setAttribute("aria-pressed","false"));
-  btn.setAttribute("aria-pressed","true"); setColor(c);
-  $("pimg").classList.add("tinted"); $("hex").textContent=c.toUpperCase(); $("badge").classList.remove("hidden");
-}
-$("lblChk").onchange=e=>$("lbl").classList.toggle("hidden",!e.target.checked);
+function resizeDataUrl(url,max,type){ return new Promise(res=>{ const i=new Image(); i.onload=()=>{ const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas"); c.width=Math.round(i.width*k); c.height=Math.round(i.height*k); c.getContext("2d").drawImage(i,0,0,c.width,c.height); res(c.toDataURL(type||"image/jpeg",.85)); }; i.src=url; }); }
 
-// ---------- Logo / relieve ----------
-const LG = {on:false,mode:"print",place:"Cuerpo",x:50,y:56,size:34,ratio:1,url:null,mask:null,thumb:null,name:""};
-const PLACES = {Cuerpo:[50,56],Tapa:[50,26],Mango:[50,80]};
-function tabTo(t){
-  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.t===t)));
-  $("pColor").classList.toggle("hidden",t!=="color"); $("pLogo").classList.toggle("hidden",t!=="logo");
+// ================= Asistente de 6 pasos =================
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbywljcd-byWuqxqWxvlcB05NSkL0NUCYrY8-NhW1yLrzh4wlho4U5GHJ8NIBFA8Aj5y/exec";
+const S = {tipo:"",marca:"",logo:null,mask:null,ratio:1,palette:[],pote:"#FBC10A",tapa:"#FFFFFF",etq:"",donde:"",step:0,env:null};
+const PRESETS = ["#FFFFFF","#0D0D0E","#FBC10A","#C8102E","#0057B8","#1B8A3A"];
+const SCREENS = ["wiz","home","conf","quote","view","admin"];
+function show(id){ SCREENS.forEach(x=>$(x).classList.toggle("hidden",x!==id)); }
+const isPromo = ()=>S.tipo==="promo";
+function goStep(n){
+  S.step=n; $("werr").textContent="";
+  for(let i=0;i<5;i++) $("p"+i).classList.toggle("hidden",i!==n);
+  $("stepLbl").innerHTML="<b>Paso "+(n+1)+"</b> de 6";
+  $("wBack").classList.toggle("hidden",n===0); $("wNext").classList.toggle("hidden",n===0);
+  $("wNext").textContent = n===4 ? "Elegir envase" : "Siguiente";
+  if(n===2){ $("gTapa").classList.toggle("hidden",isPromo()); $("lblPote").textContent=isPromo()?"producto":"pote"; mkSw("swPote","pote"); mkSw("swTapa","tapa"); }
+  if(n===4) $("dEtq").textContent = isPromo() ? "Logo impreso" : "Etiqueta en la tapa";
 }
-document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>tabTo(b.dataset.t));
-function drawLogo(){
-  const el=$("logo"); if(!LG.on){el.classList.add("hidden");return;}
-  el.classList.remove("hidden"); el.className="logo "+LG.mode;
-  el.style.left=LG.x+"%"; el.style.top=LG.y+"%"; el.style.width=LG.size+"%"; el.style.aspectRatio=String(LG.ratio);
-  el.style.backgroundImage = LG.mode==="print" ? "url("+LG.url+")" : "none";
-  el.style.setProperty("--m","url("+LG.mask+")");
-}
-function seg(id,fn){ $(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{ $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); fn(b.dataset.v); }); }
-seg("segMode",v=>{LG.mode=v; if(v==="relieve") $("lhint").textContent="El relieve se fabrica con molde: lo cotizamos según el logo."; drawLogo();});
-seg("segPlace",v=>{LG.place=v;[LG.x,LG.y]=PLACES[v];drawLogo();});
-$("lsize").oninput=e=>{LG.size=+e.target.value;drawLogo();};
-$("addLogo").onclick=()=>$("fileLogo").click();
-$("rmLogo").onclick=()=>{LG.on=false;drawLogo();};
-$("fileLogo").onchange=e=>{
+document.querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{ S.tipo=b.dataset.tipo; goStep(1); });
+function pressCards(attr,val){ document.querySelectorAll("["+attr+"]").forEach(x=>x.setAttribute("aria-pressed",String(x.getAttribute(attr)===val))); }
+document.querySelectorAll("[data-etq]").forEach(b=>b.onclick=()=>{ S.etq=b.dataset.etq; pressCards("data-etq",S.etq); });
+document.querySelectorAll("[data-donde]").forEach(b=>b.onclick=()=>{ S.donde=b.dataset.donde; pressCards("data-donde",S.donde); });
+$("wBack").onclick=()=>goStep(Math.max(0,S.step-1));
+$("wNext").onclick=()=>{
+  const e=$("werr");
+  if(S.step===1){ S.marca=$("marca").value.trim(); if(!S.logo){e.textContent="Carga primero la foto de tu logo.";return;} if(!S.marca){e.textContent="Escribe el nombre de tu marca.";return;} }
+  if(S.step===3 && !S.etq){ e.textContent="Elige un tipo de etiqueta."; return; }
+  if(S.step===4){ if(!S.donde){ e.textContent="Elige dónde va tu marca."; return; } $("q").value=""; startCatalog(); show("home"); return; }
+  goStep(S.step+1);
+};
+$("hBack").onclick=()=>{ show("wiz"); goStep(4); };
+
+// Paso 2: logo
+$("cam").onclick=()=>$("fileCam").click(); $("gal").onclick=()=>$("fileGal").click();
+["fileCam","fileGal"].forEach(id=>$(id).onchange=e=>{
   const f=e.target.files&&e.target.files[0]; if(!f) return;
   const u=URL.createObjectURL(f), img=new Image();
   img.onload=()=>{
+    S.palette=extract(img);
     const k=Math.min(1,700/Math.max(img.width,img.height)), w=Math.round(img.width*k), h=Math.round(img.height*k);
     const c=document.createElement("canvas"); c.width=w; c.height=h; const x=c.getContext("2d",{willReadFrequently:true}); x.drawImage(img,0,0,w,h);
-    LG.url=c.toDataURL("image/png"); LG.thumb=LG.url; LG.ratio=w/h; LG.name=f.name;
-    // silueta para el relieve: usa la transparencia del logo o, si no tiene, lo oscuro sobre fondo claro
+    S.logo=c.toDataURL("image/png"); S.ratio=w/h;
     const d=x.getImageData(0,0,w,h), p=d.data; let transp=false; for(let i=3;i<p.length;i+=4) if(p[i]<250){transp=true;break;}
     for(let i=0;i<p.length;i+=4){ const lum=.299*p[i]+.587*p[i+1]+.114*p[i+2]; const a=transp?p[i+3]:Math.max(0,Math.min(255,(235-lum)*3)); p[i]=p[i+1]=p[i+2]=0; p[i+3]=a; }
-    x.putImageData(d,0,0); LG.mask=c.toDataURL("image/png");
-    LG.on=true; [LG.x,LG.y]=PLACES[LG.place]; drawLogo(); $("toQuote").classList.remove("hidden");
+    x.putImageData(d,0,0); S.mask=c.toDataURL("image/png");
+    $("logoPv").style.backgroundImage="url("+S.logo+")";
+    S.pote=(S.palette[0]||"#FBC10A").toUpperCase(); S.tapa=(S.palette[1]||"#FFFFFF").toUpperCase();
+    $("werr").textContent="";
   };
-  img.onerror=()=>{$("lhint").textContent="No pudimos leer ese logo. Prueba con PNG o JPG.";};
+  img.onerror=()=>{$("werr").textContent="No pudimos leer esa imagen. Prueba con otra foto.";};
   img.src=u; e.target.value="";
-};
-// arrastrar el logo con el dedo
-(function(){ const el=$("logo"); let drag=false;
-  el.addEventListener("pointerdown",e=>{drag=true;el.setPointerCapture(e.pointerId);});
-  el.addEventListener("pointerup",()=>drag=false);
-  el.addEventListener("pointermove",e=>{ if(!drag) return; const r=el.parentElement.getBoundingClientRect();
-    LG.x=Math.max(5,Math.min(95,(e.clientX-r.left)/r.width*100)); LG.y=Math.max(5,Math.min(95,(e.clientY-r.top)/r.height*100)); drawLogo(); });
-})();
+});
 
-// ---------- IA (Gemini) ----------
-// URL del servidor intermedio (ver gemini-proxy.gs). Mientras esté vacía, el botón avisa que la IA no está conectada.
-const GEMINI_ENDPOINT = "https://script.google.com/macros/s/AKfycbz6ZGrDH-Rj4gf1NRv11byyqrGE8Tk_eFvVikH95w40ULQa_0DUPjeq6-PxuDMtLJN4/exec";
-const AI = {img:null,mode:"opaco"};
-$("aiMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{ AI.mode=b.dataset.v; $("aiMode").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); });
-function resizeDataUrl(url,max,type){ return new Promise(res=>{ const i=new Image(); i.onload=()=>{ const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas"); c.width=Math.round(i.width*k); c.height=Math.round(i.height*k); c.getContext("2d").drawImage(i,0,0,c.width,c.height); res(c.toDataURL(type||"image/jpeg",.85)); }; i.src=url; }); }
-$("aiGo").onclick = ()=>{
-  if(!photoThumb && !LG.on){ $("hint").textContent="Primero toma una foto de la marca o sube tu logo."; return; }
-  const m=$("aiMarca").value.trim();
-  if(!m){ $("hint").textContent="Escribe con qué marca quieres vestir el envase."; $("aiMarca").focus(); return; }
-  AI.marca=m;
-  $("toQuote").onclick();
-  if(!$("q_productoCliente").value) $("q_productoCliente").value=m;
-  $("qnote").textContent="Completa tus datos y envía: FOSKO prepara tu envase vestido y te lo manda con la cotización.";
-};
-$("aiBack").onclick = ()=>{ AI.img=null; const im=$("pimg"); im.src=curP.url; im.classList.add("tinted"); $("aiBack").classList.add("hidden"); drawLogo(); };
+// Paso 3: colores
+function mkSw(id,key){
+  const box=$(id); box.innerHTML="";
+  const list=[...new Set([...S.palette,...PRESETS].map(c=>c.toUpperCase()))];
+  const sync=()=>box.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.c===S[key])));
+  list.forEach(c=>{ const b=document.createElement("button"); b.type="button"; b.dataset.c=c; b.style.background=c; b.setAttribute("aria-label","Color "+c);
+    b.onclick=()=>{S[key]=c;sync();}; box.appendChild(b); });
+  const i=document.createElement("input"); i.type="color"; i.value=S[key].length===7?S[key]:"#ffffff"; i.setAttribute("aria-label","Otro color");
+  i.oninput=()=>{S[key]=i.value.toUpperCase(); sync();}; box.appendChild(i); sync();
+}
 
-// ---------- Cotización ----------
-// Para recibir pedidos completos (con foto y logo) en una planilla: pegar aquí la URL del receptor (ver receptor-cotizaciones.gs).
-const ENDPOINT = "https://script.google.com/macros/s/AKfycbywljcd-byWuqxqWxvlcB05NSkL0NUCYrY8-NhW1yLrzh4wlho4U5GHJ8NIBFA8Aj5y/exec";
-// Completar con los datos reales de FOSKO para que el pedido llegue solo:
-let photoThumb = null;
-const DEST_WHATSAPP = "";   // ej. "56912345678" (código país + número, sin +)
-const DEST_EMAIL = "";      // ej. "cotizaciones@fosko.cl"
-let curP = null, lastSummary = "";
-const _open = openStudio;
-openStudio = function(p){ curP = p; $("toQuote").classList.add("hidden"); AI.img=null; AI.marca=""; $("aiBox").classList.add("hidden"); $("aiBack").classList.add("hidden"); LG.on=false; drawLogo(); tabTo("color"); _open(p); };
-const _pick = pick;
-pick = function(c,b){ _pick(c,b); $("toQuote").classList.remove("hidden"); };
-$("toQuote").onclick = ()=>{
-  $("qname").textContent = curP.name + (curP.sizeLbl ? " · "+curP.sizeLbl : "");
-  const im = $("qimg"); im.src = AI.img || curP.url; im.className = AI.img ? "" : "tinted";
-  $("qcolor").textContent = $("hex").textContent;
-  $("qlab").textContent = $("lblChk").checked ? " · con etiqueta de tu foto" : "";
-  $("qlogo").textContent = LG.on ? "Logo "+(LG.mode==="relieve"?"en relieve (apostillado)":"impreso")+" · "+LG.place : "";
-  $("qsum").classList.add("hidden"); $("copy").classList.add("hidden"); $("qnote").textContent = "";
-  prefillQuote();
-  $("quote").classList.add("open"); $("quote").setAttribute("aria-hidden","false");
+// Confirmar
+function setColor(c){ document.documentElement.style.setProperty("--c",c); $("flood").setAttribute("flood-color",c); }
+function drawLogo(){
+  const el=$("logo"), rel=S.donde==="Relieve", pos=isPromo()?[50,56]:[50,26];
+  el.className="logo "+(rel?"relieve":"print");
+  el.style.left=pos[0]+"%"; el.style.top=pos[1]+"%"; el.style.width="32%"; el.style.aspectRatio=String(S.ratio);
+  el.style.backgroundImage = rel ? "none" : "url("+S.logo+")"; el.style.setProperty("--m","url("+S.mask+")");
+}
+function colorTxt(){ return isPromo() ? "Color "+S.pote : "Pote "+S.pote+" · Tapa "+S.tapa; }
+function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+S.etq+"\nMarca en: "+S.donde; }
+function pickEnvase(p){
+  S.env=p; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
+  const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
+  $("hex").textContent=colorTxt(); drawLogo(); $("cres").textContent=resumenSel();
+  $("cnote").textContent="Te enviamos el mockup a tu correo. Desde ahí podrás pedir tu cotización.";
+  $("cSend").disabled=false; $("cSend").classList.remove("hidden"); $("cform").querySelectorAll(".fld").forEach(x=>x.classList.remove("hidden"));
+  show("conf");
+}
+$("cBack").onclick=()=>show("home");
+async function postJSON(obj){
+  const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
+  try{ return await r.json(); }catch(_){ return {ok:true}; }
+}
+$("cform").onsubmit=async e=>{
+  e.preventDefault();
+  const g=id=>$(id).value.trim();
+  const cpv={"Cliente":g("c_emp"),"Producto Fosko":S.env.name,"Producto Cliente":S.marca,"Tipo":isPromo()?"Promoción":"Línea","Color":colorTxt(),
+    "Etiqueta":S.etq,"En donde lleva la etiqueta?":S.donde==="Relieve"?"":(isPromo()?"Cuerpo":"Tapa"),"Lleva marca en relieve?":S.donde==="Relieve"?"SI":"NO"};
+  const contacto={"Nombre":g("c_nom"),"Cargo":g("c_car"),"Mail":g("c_mail"),"Fono":g("c_fono")};
+  const deco="SOLICITUD DE MOCKUP · "+resumenSel().replace(/\n/g," · ");
+  const resumen="SOLICITUD DE MOCKUP DESDE APP FOSKO\nEmpresa: "+cpv.Cliente+"\n"+resumenSel()+"\nNombre: "+contacto.Nombre+"\nCargo: "+contacto.Cargo+"\nMail: "+contacto.Mail+"\nFono: "+contacto.Fono;
+  $("cSend").disabled=true; $("cnote").textContent="Enviando…";
+  try{
+    const r=await postJSON({cpv,contacto,decoracion:deco,resumen,fotoRef:"",logo:S.logo,mockup:"",urlProducto:S.env.url});
+    if(r&&r.ok===false) throw 0;
+    $("cform").querySelectorAll(".fld").forEach(x=>x.classList.add("hidden")); $("cSend").classList.add("hidden");
+    $("cres").textContent="Solicitud enviada"+(r&&r.folio?" · N° "+r.folio:"")+"\n\n"+resumenSel();
+    $("cnote").textContent="Listo. FOSKO prepara tu mockup y te lo envía a "+contacto.Mail+". Desde el correo podrás pedir tu cotización.";
+  }catch(_){ $("cnote").textContent="No se pudo enviar. Revisa tu conexión e intenta de nuevo."; $("cSend").disabled=false; }
 };
-$("qback").onclick = ()=>{ $("quote").classList.remove("open"); $("quote").setAttribute("aria-hidden","true"); };
+
+// ================= Cotización (CPV) =================
 // Casillas del Formulario CPV de FOSKO, en el mismo orden. Las marcadas "int" las completa el equipo si el cliente no las sabe.
 const EJEC = ["Ignacio Quintar","Jesus Tineo","Cherie Agurto","Jose Vega","Víctor Sonza","Ricardo Silva"];
 const CAMPOS = [
@@ -563,53 +621,79 @@ function buildQuote(){
 }
 function setCh(k,val){ QV[k]=val; $("q_"+k).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===val))); }
 function calcEntrega(){ const a=+$("q_anual").value; if(a&&!$("q_cantEtiq").dataset.touched) $("q_cantEtiq").value = a; }
-function prefillQuote(){
-  setCh("tipo", curP.cat==="Promocionales" ? "Promoción" : "Línea");
-  setCh("entregas","4");
-  $("q_color").value = $("qcolor").textContent;
-  setCh("etiqueta", $("lblChk").checked ? "IML" : "N/A");
-  setCh("relieve", (LG.on && LG.mode==="relieve") ? "SI" : "NO");
-  setCh("transp","NO");
-  $("q_dondeEtiq").value = LG.on ? LG.place : "";
-  if(!$("q_nDisenos").value && LG.on) $("q_nDisenos").value = 1;
-}
+
 buildQuote();
 $("q_cantEtiq").oninput = e=>{ e.target.dataset.touched = "1"; };
-function cpvData(){
-  const v=k=>{ const x=QV[k]!==undefined ? QV[k] : $("q_"+k).value.trim(); return Array.isArray(x)?x.join(", "):x; };
-  const deco = LG.on ? "Logo "+(LG.mode==="relieve"?"en relieve (apostillado)":"impreso")+" en "+LG.place+" · tamaño "+LG.size+"% · posición "+Math.round(LG.x)+"/"+Math.round(LG.y) : "Sin logo";
-  const cpv = {"Cliente":v("cliente"),"Producto Fosko":$("qname").textContent,"Producto Cliente":v("productoCliente"),"Tipo":v("tipo"),
+
+// ================= Mockup compartido =================
+const VW = {id:"",f:"",m:"",e:"",t:""};
+function openView(P){
+  Object.assign(VW,{id:P.get("v"),f:P.get("f")||"",m:P.get("m")||"",e:P.get("e")||"",t:P.get("t")||""});
+  $("vimg").src="https://drive.google.com/thumbnail?id="+encodeURIComponent(VW.id)+"&sz=w1400";
+  $("vtitle").innerHTML="Tu mockup"+(VW.m?" <em></em>":""); if(VW.m) $("vtitle").querySelector("em").textContent=VW.m;
+  $("vsub").textContent=(VW.e?VW.e+". ":"")+"Si te gusta, pide tu cotización con el botón.";
+  $("vfolio").textContent=VW.f; show("view");
+}
+$("vQuote").onclick=()=>{
+  $("qname").textContent=VW.e||"Envase FOSKO"; const im=$("qimg"); im.src=$("vimg").src; im.className="";
+  $("qcolor").textContent=""; $("qlab").textContent=""; $("qlogo").textContent=VW.m?"Marca "+VW.m:"";
+  $("qsum").classList.add("hidden"); $("copy").classList.add("hidden"); $("qnote").textContent="";
+  setCh("tipo",VW.t==="promo"?"Promoción":"Línea"); setCh("entregas","4"); setCh("ejecutivo","Ignacio Quintar");
+  if(VW.m && !$("q_productoCliente").value) $("q_productoCliente").value=VW.m;
+  show("quote");
+};
+$("qback").onclick=()=>show("view");
+let lastSummary="";
+$("qform").onsubmit=async e=>{
+  e.preventDefault();
+  if(!QV.ejecutivo){ $("qnote").textContent="Elige tu ejecutivo FOSKO."; return; }
+  if(!QV.entregas){ $("qnote").textContent="Elige la cantidad de entregas al año."; return; }
+  const v=k=>{ const x=QV[k]!==undefined?QV[k]:$("q_"+k).value.trim(); return Array.isArray(x)?x.join(", "):x; };
+  const cpv={"Cliente":v("cliente"),"Producto Fosko":VW.e||$("qname").textContent,"Producto Cliente":v("productoCliente"),"Tipo":v("tipo"),
     "Cantidad Anual":v("anual"),"Cantidad de entregas al año":v("entregas"),"Cantidad a cotizar etiquetas":v("cantEtiq"),"Materialidad":v("materialidad"),
     "Color":v("color"),"Etiqueta":v("etiqueta"),"En donde lleva la etiqueta?":v("dondeEtiq"),"Proceso productivo al cual se somete la etiqueta":v("proceso"),
     "Cantidad de colores?":v("nColores"),"Cantidad de diseños?":v("nDisenos"),"Transparencias?":v("transp"),"Lleva marca en relieve?":v("relieve"),
     "Precio Objetivo":v("precio"),"Servicio":v("servicio"),"Comentarios del servicio":v("comServicio"),"Ejecutivo que solicita":v("ejecutivo")};
-  const contacto = {"Nombre":v("nombre"),"Cargo":v("cargo"),"Mail":v("mail"),"Fono":v("fono")};
-  return {cpv,contacto,deco};
-}
-$("qform").onsubmit = async e=>{
-  e.preventDefault();
-  if(!QV.ejecutivo){ $("qnote").textContent="Elige tu ejecutivo FOSKO."; return; }
-  if(!QV.entregas){ $("qnote").textContent="Elige la cantidad de entregas al año."; return; }
-  const {cpv,contacto,deco}=cpvData();
-  const lines=["COTIZACIÓN DESDE APP FOSKO (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),"Decoración (diseño en app): "+(AI.marca?"PIDE ENVASE VESTIDO con la marca "+AI.marca+" (IML "+AI.mode+"). ":"")+deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)];
-  lastSummary=lines.join("\n");
-  $("qsum").textContent=lastSummary; $("qsum").classList.remove("hidden"); $("copy").classList.remove("hidden");
-  if(ENDPOINT){
-    $("send").disabled=true; $("qnote").textContent="Enviando…";
-    try{
-      await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body:JSON.stringify({cpv,contacto,decoracion:(AI.marca?"PIDE ENVASE VESTIDO con la marca "+AI.marca+" (IML "+AI.mode+"). ":"")+deco,resumen:lastSummary,fotoRef:photoThumb||"",logo:LG.on?LG.thumb:"",mockup:AI.img?await resizeDataUrl(AI.img,1000,"image/jpeg"):"",urlProducto:curP.url})});
-      $("qnote").textContent="Listo. Recibimos tu solicitud y te respondemos a la brevedad."; $("qsum").classList.add("hidden"); $("copy").classList.add("hidden");
-    }catch(_){ $("qnote").textContent="No se pudo enviar. Copia el resumen y envíalo a tu ejecutivo FOSKO."; }
-    $("send").disabled=false; return;
-  }
-  if(DEST_WHATSAPP){ location.href="https://wa.me/"+DEST_WHATSAPP+"?text="+encodeURIComponent(lastSummary); $("qnote").textContent="Se abre WhatsApp con tu pedido listo para enviar."; }
-  else if(DEST_EMAIL){ location.href="mailto:"+DEST_EMAIL+"?subject="+encodeURIComponent("Cotización "+$("qname").textContent)+"&body="+encodeURIComponent(lastSummary); $("qnote").textContent="Se abre tu correo con el pedido listo para enviar."; }
-  else $("qnote").textContent="Resumen listo. Cópialo y envíalo a tu ejecutivo FOSKO.";
-  $("qsum").scrollIntoView({behavior:"smooth",block:"center"});
+  const contacto={"Nombre":v("nombre"),"Cargo":v("cargo"),"Mail":v("mail"),"Fono":v("fono")};
+  const deco="COTIZACIÓN sobre mockup "+VW.f+(VW.m?" · marca "+VW.m:"");
+  lastSummary=["COTIZACIÓN DESDE MOCKUP "+VW.f+" (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)].join("\n");
+  $("send").disabled=true; $("qnote").textContent="Enviando…";
+  try{
+    const r=await postJSON({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:"",logo:"",mockup:"",urlProducto:$("vimg").src,folioRef:VW.f});
+    if(r&&r.ok===false) throw 0;
+    $("qnote").textContent="Listo. Recibimos tu solicitud de cotización y te respondemos a la brevedad.";
+  }catch(_){ $("qnote").textContent="No se pudo enviar. Revisa tu conexión e intenta de nuevo."; }
+  $("send").disabled=false;
 };
-$("copy").onclick = async ()=>{ try{ await navigator.clipboard.writeText(lastSummary); $("copy").textContent="Copiado"; }catch(_){ $("copy").textContent="Selecciona el texto y cópialo"; } };
-renderGrid();
+$("copy").onclick=async()=>{ try{ await navigator.clipboard.writeText(lastSummary); $("copy").textContent="Copiado"; }catch(_){} };
+
+// ================= Panel de Nacho (?admin) =================
+let aText="";
+$("aform").onsubmit=async e=>{
+  e.preventDefault();
+  const f=$("a_img").files[0]; if(!f) return;
+  $("aSend").disabled=true; $("aout").classList.remove("hidden"); $("aout").textContent="Subiendo…";
+  try{
+    const url=URL.createObjectURL(f);
+    const imagen=await resizeDataUrl(url,1400,"image/jpeg");
+    const folio=$("a_folio").value.trim(), marca=$("a_marca").value.trim(), env=$("a_env").value.trim();
+    const r=await postJSON({accion:"mockup",clave:$("a_clave").value,folio,marca,envase:env,imagen});
+    if(!r||!r.ok) throw new Error(r&&r.error||"error");
+    const link=location.origin+location.pathname+"?v="+encodeURIComponent(r.id)+"&f="+encodeURIComponent(folio)+"&m="+encodeURIComponent(marca)+"&e="+encodeURIComponent(env);
+    aText="Hola, te comparto el mockup de tu envase"+(env?" "+env:"")+(marca?" con la marca "+marca:"")+":\n"+link+"\n\nSi te gusta, abre el link y pulsa «Cotizar» para completar los datos de tu cotización.\n\nSaludos,\nIgnacio Quintar · FOSKO";
+    $("aout").textContent=aText; $("aCopy").classList.remove("hidden");
+  }catch(err){ $("aout").textContent="No se pudo: "+(err.message==="clave"?"clave incorrecta":err.message); }
+  $("aSend").disabled=false;
+};
+$("aCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(aText); $("aCopy").textContent="Copiado"; }catch(_){} };
+
+// ================= Inicio =================
+(function(){
+  const P=new URLSearchParams(location.search);
+  if(P.has("admin")) show("admin");
+  else if(P.get("v")) openView(P);
+  else { show("wiz"); goStep(0); }
+})();
 </script>
 </body>
 </html>
