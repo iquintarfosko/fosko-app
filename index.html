@@ -352,7 +352,7 @@ const P = [
  ["Cuchara Larga Logo","Cucharas","2025/07/Cuchara-larga-logo.png"],["Revolvedor de Trago","Cucharas","2025/07/Revolvedor-de-trago.png"],
  ["Pincha Cocktail","Cucharas","2025/07/Pincha-Cocktail.png"],
  ["Dispensador 150","Laboratorio","2025/07/Dispensador-150.png"],["Dispensador 300","Laboratorio","2025/07/Dispensador-300.png"],
- ["Dispensador 500","Laboratorio","2025/07/Dispensador-500.png"],["Jabonera Dove","Laboratorio","2025/07/Jabonera-Dove.png"]
+ ["Dispensador 500","Laboratorio","2025/07/Dispensador-500.png"],["Jabonera Dove","Laboratorio","2025/07/Jabonera-Dove.png"],["Jeringa","Farma","farma/jeringa.png"],["Tapón de jeringa","Farma","farma/tapon.png"]
 ].map(([n,c,u])=>({name:n,cat:c,url:B+u}));
 
 // Tamaño en ml/g según el nombre en fosko.cl. Si no está aquí, el sitio no lo indica.
@@ -373,7 +373,7 @@ P.forEach(p=>{
   p.size = SIZE[p.name]||0;
   p.group = p.cat==="Promocionales" ? "Promocionales" : p.cat==="Cucharas" ? "Cucharas" : !p.size ? "Otros formatos"
     : p.size<=250 ? "Hasta 250" : p.size<=500 ? "251 a 500" : p.size<=1000 ? "501 a 1000" : "Más de 1 L";
-  if(/^(Mini )?Copa/.test(p.name)) p.group="Copas"; else if(p.name.startsWith("Dispensador")) p.group="Farma";
+  if(/^(Mini )?Copa/.test(p.name)) p.group="Copas"; else if(p.name.startsWith("Dispensador")||p.cat==="Farma") p.group="Farma";
   p.sizeLbl = p.size ? (p.size>=1000 ? (p.size/1000)+" L" : p.size+" ml/g") : "";
   const k = Object.keys(CLAVES).filter(w=>p.name.includes(w)).map(w=>CLAVES[w]).join(" ");
   p.tags = norm([p.name,p.cat,p.sizeLbl,k,(MARCAS[p.name]||[]).join(" ")].join(" "));
@@ -489,7 +489,7 @@ function goStep(n){
   if(n===2){ $("lblPote").textContent=isPromo()?"producto":"pote"; mkSw("swPote","pote"); mkSw("swTapa","tapa"); }
   if(n===4) $("dEtq").textContent = isPromo() ? "Logo impreso" : "Etiqueta en la tapa";
 }
-document.querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{ S.tipo=b.dataset.tipo; S.etq=""; S.donde=isPromo()?"Relieve":""; pressCards("data-etq",""); pressCards("data-donde",""); goStep(1); });
+document.querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{ S.tipo=b.dataset.tipo; if(S.tipo==="farma"){ $("q").value=""; startCatalog(); $("hStep").innerHTML="<b>Paso 2</b> de 2"; show("home"); return; } S.etq=""; S.donde=isPromo()?"Relieve":""; pressCards("data-etq",""); pressCards("data-donde",""); goStep(1); });
 function pressCards(attr,val){ document.querySelectorAll("["+attr+"]").forEach(x=>x.setAttribute("aria-pressed",String(x.getAttribute(attr)===val))); }
 document.querySelectorAll("[data-etq]").forEach(b=>b.onclick=()=>{ S.etq=S.etqW=b.dataset.etq; pressCards("data-etq",S.etq); });
 document.querySelectorAll("[data-donde]").forEach(b=>b.onclick=()=>{ S.donde=b.dataset.donde; pressCards("data-donde",S.donde); });
@@ -502,7 +502,7 @@ $("wNext").onclick=()=>{
   if(S.step===4){ if(!S.donde){ e.textContent="Elige dónde va tu marca."; return; } $("q").value=""; startCatalog(); $("hStep").innerHTML="<b>Paso 6</b> de 6"; show("home"); return; }
   goStep(S.step+1);
 };
-$("hBack").onclick=()=>{ show("wiz"); goStep(isPromo()?2:4); };
+$("hBack").onclick=()=>{ show("wiz"); goStep(S.tipo==="farma"?0:isPromo()?2:4); };
 
 // Paso 2: logo
 $("cam").onclick=()=>$("fileCam").click(); $("gal").onclick=()=>$("fileGal").click();
@@ -548,7 +548,7 @@ function drawLogo(){
 function colorTxt(){ if(!isPromo()) return "Pote "+S.pote+" · Tapa "+S.tapa; const n=S.env&&S.env.name; if(n&&CON_TAPA.includes(n)) return (n.startsWith("Vaso")?"Vaso ":"Cuerpo ")+S.pote+" · Tapa "+S.tapa+(n.startsWith("Vaso")?" · Bombilla translúcida":""); return "Color "+S.pote; }
 function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":S.tipo==="farma"?"Farma":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.nota?"\nNota: "+S.nota:""); }
 function pickEnvase(p){
-  S.env=p; S.nota=""; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
+  S.env=p; if(S.tipo==="farma"){ openFarma(p); return; } S.nota=""; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
   const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
   let opts=OPCIONES[p.name]||[]; S.nota="";
   if(isPromo()){ if(opts.length){ S.etq=opts[0]; S.donde=opts[0]==="Serigrafía"?"Serigrafía":"Etiqueta"; } else { S.etq=""; S.donde="Relieve"; } }
@@ -594,6 +594,7 @@ const CAMPOS = [
  {k:"productoCliente",l:"Producto Cliente",t:"text",ph:"Ej. Sal Lobos, Magnum"},
  {h:"Qué necesitas"},
  {k:"tipo",l:"Tipo",ch:["Línea","Promoción","Desarrollo"]},
+ {k:"presentacion",l:"Presentación",ch:["Granel","Oral pack (bolsa con jeringa + tapón)"]},
  {k:"anual",l:"Cantidad Anual",t:"number",ph:"Ej. 120000",req:1},
  {k:"entregas",l:"Cantidad de entregas al año",ch:["4","3"],note:"4 = trimestral · 3 = cuatrimestral",req:1},
  {k:"cantEtiq",l:"Cantidad a cotizar etiquetas",t:"number",ph:"Si no aplica, déjalo vacío"},
@@ -649,6 +650,7 @@ function setCh(k,val){ QV[k]=val; $("q_"+k).querySelectorAll("button").forEach(x
 function calcEntrega(){ const a=+$("q_anual").value; if(a&&!$("q_cantEtiq").dataset.touched) $("q_cantEtiq").value = a; }
 
 buildQuote();
+$("q_presentacion").parentElement.classList.add("hidden");
 $("q_cantEtiq").oninput = e=>{ e.target.dataset.touched = "1"; };
 
 // ================= Mockup compartido =================
@@ -668,7 +670,16 @@ $("vQuote").onclick=()=>{
   if(VW.m && !$("q_productoCliente").value) $("q_productoCliente").value=VW.m;
   show("quote");
 };
-$("qback").onclick=()=>show("view");
+function openFarma(p){
+  Object.assign(VW,{id:"",f:"",m:"",e:p.name,t:"farma"});
+  $("qname").textContent=p.name; const im=$("qimg"); im.src=p.url; im.className="";
+  $("qcolor").textContent=""; $("qlab").textContent=""; $("qlogo").textContent="Farma";
+  $("qsum").classList.add("hidden"); $("copy").classList.add("hidden"); $("qnote").textContent="";
+  const disp=p.name.startsWith("Dispensador"); $("q_presentacion").parentElement.classList.toggle("hidden",disp);
+  setCh("presentacion",disp?"":"Granel"); setCh("tipo","Línea"); setCh("entregas","4"); setCh("ejecutivo","Ignacio Quintar");
+  show("quote");
+}
+$("qback").onclick=()=>show(VW.t==="farma"?"home":"view");
 let lastSummary="";
 $("qform").onsubmit=async e=>{
   e.preventDefault();
@@ -679,13 +690,13 @@ $("qform").onsubmit=async e=>{
     "Cantidad Anual":v("anual"),"Cantidad de entregas al año":v("entregas"),"Cantidad a cotizar etiquetas":v("cantEtiq"),"Materialidad":v("materialidad"),
     "Color":v("color"),"Etiqueta":v("etiqueta"),"En donde lleva la etiqueta?":v("dondeEtiq"),"Proceso productivo al cual se somete la etiqueta":v("proceso"),
     "Cantidad de colores?":v("nColores"),"Cantidad de diseños?":v("nDisenos"),"Transparencias?":v("transp"),"Lleva marca en relieve?":v("relieve"),
-    "Precio Objetivo":v("precio"),"Servicio":v("servicio"),"Comentarios del servicio":v("comServicio"),"Ejecutivo que solicita":v("ejecutivo")};
+    "Precio Objetivo":v("precio"),"Servicio":v("servicio"),"Comentarios del servicio":(VW.t==="farma"&&v("presentacion")?"Presentación: "+v("presentacion")+(v("comServicio")?" · ":""):"")+v("comServicio"),"Ejecutivo que solicita":v("ejecutivo")};
   const contacto={"Nombre":v("nombre"),"Cargo":v("cargo"),"Mail":v("mail"),"Fono":v("fono")};
-  const deco="COTIZACIÓN sobre mockup "+VW.f+(VW.m?" · marca "+VW.m:"");
-  lastSummary=["COTIZACIÓN DESDE MOCKUP "+VW.f+" (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)].join("\n");
+  const deco=VW.t==="farma"?"COTIZACIÓN FARMA · "+VW.e+(v("presentacion")?" · "+v("presentacion"):""):"COTIZACIÓN sobre mockup "+VW.f+(VW.m?" · marca "+VW.m:"");
+  lastSummary=[(VW.t==="farma"?"COTIZACIÓN FARMA DESDE APP":"COTIZACIÓN DESDE MOCKUP "+VW.f)+" (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)].join("\n");
   $("send").disabled=true; $("qnote").textContent="Enviando…";
   try{
-    const r=await postJSON({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:"",logo:"",mockup:"",urlProducto:$("vimg").src,folioRef:VW.f});
+    const r=await postJSON({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:"",logo:"",mockup:"",urlProducto:VW.t==="farma"?S.env.url:$("vimg").src,folioRef:VW.f});
     if(r&&r.ok===false) throw 0;
     $("qnote").textContent="Listo. Recibimos tu solicitud de cotización y te respondemos a la brevedad.";
   }catch(_){ $("qnote").textContent="No se pudo enviar. Revisa tu conexión e intenta de nuevo."; }
