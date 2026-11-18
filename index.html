@@ -464,7 +464,7 @@ $("fileLogo").onchange=e=>{
 
 // ---------- IA (Gemini) ----------
 // URL del servidor intermedio (ver gemini-proxy.gs). Mientras esté vacía, el botón avisa que la IA no está conectada.
-const GEMINI_ENDPOINT = "";
+const GEMINI_ENDPOINT = "https://script.google.com/macros/s/AKfycbz6ZGrDH-Rj4gf1NRv11byyqrGE8Tk_eFvVikH95w40ULQa_0DUPjeq6-PxuDMtLJN4/exec";
 const AI = {img:null,mode:"opaco"};
 $("aiMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{ AI.mode=b.dataset.v; $("aiMode").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); });
 function resizeDataUrl(url,max,type){ return new Promise(res=>{ const i=new Image(); i.onload=()=>{ const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas"); c.width=Math.round(i.width*k); c.height=Math.round(i.height*k); c.getContext("2d").drawImage(i,0,0,c.width,c.height); res(c.toDataURL(type||"image/jpeg",.85)); }; i.src=url; }); }
