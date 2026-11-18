@@ -269,7 +269,7 @@ svg.defs{position:absolute;width:0;height:0}
     </div>
     <form class="cbody" id="cform" autocomplete="on">
       <div class="done" id="cres" style="font-size:15px"></div>
-      <div class="cards two hidden" id="cOpt"><button type="button" class="card" data-popt="Relieve" aria-pressed="true"><b>Relieve</b><i>Logo en relieve</i></button><button type="button" class="card" data-popt="IML" aria-pressed="false"><b>Etiqueta IML</b><i>Este balde admite IML</i></button></div>
+      <div class="cards two hidden" id="cOpt"><button type="button" class="card" data-popt="IML" aria-pressed="true"><b>Etiqueta IML</b><i>Integrada al balde</i></button><button type="button" class="card" data-popt="Autoadhesiva" aria-pressed="false"><b>Autoadhesiva</b><i>Sticker sobre el balde</i></button></div>
       <label class="fld"><span>Empresa</span><input class="in" id="c_emp" type="text" autocomplete="organization" required></label>
       <label class="fld"><span>Nombre</span><input class="in" id="c_nom" type="text" autocomplete="name" required></label>
       <label class="fld"><span>Cargo <span class="opt">(opcional)</span></span><input class="in" id="c_car" type="text" autocomplete="organization-title"></label>
@@ -463,7 +463,7 @@ const ENDPOINT = "https://script.google.com/macros/s/AKfycbywljcd-byWuqxqWxvlcB0
 const S = {tipo:"",marca:"",logo:null,mask:null,ratio:1,palette:[],pote:"#FBC10A",tapa:"#FFFFFF",etq:"",donde:"",step:0,env:null};
 // Envases que NO se pueden hacer con IML (solo autoadhesiva). Agregar aquí los nombres tal como aparecen en el catálogo.
 const SOLO_AUTO = [];
-// Promocionales que sí admiten IML (los demás solo color y logo en relieve).
+// Baldes: llevan etiqueta IML o autoadhesiva (sin relieve). Los demás promocionales: solo color y logo en relieve.
 const PROMO_IML = ["Balde 3 Lts","Balde 5 Lts"];
 const PRESETS = ["#FFFFFF","#0D0D0E","#FBC10A","#C8102E","#0057B8","#1B8A3A"];
 const SCREENS = ["wiz","home","conf","quote","view","admin"];
@@ -541,15 +541,16 @@ function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocion
 function pickEnvase(p){
   S.env=p; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
   const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
-  if(isPromo()){ S.etq=""; S.donde="Relieve"; }
-  const bal=isPromo()&&PROMO_IML.includes(p.name); $("cOpt").classList.toggle("hidden",!bal); pressCards("data-popt","Relieve");
+  const bal=isPromo()&&PROMO_IML.includes(p.name);
+  if(isPromo()){ if(bal){ S.etq="IML"; S.donde="Etiqueta"; } else { S.etq=""; S.donde="Relieve"; } }
+  $("cOpt").classList.toggle("hidden",!bal); pressCards("data-popt","IML");
   $("hex").textContent=colorTxt(); drawLogo(); $("cres").textContent=resumenSel();
   $("cnote").textContent="Te enviamos el mockup a tu correo. Desde ahí podrás pedir tu cotización.";
   $("cSend").disabled=false; $("cSend").classList.remove("hidden"); $("cform").querySelectorAll(".fld").forEach(x=>x.classList.remove("hidden"));
   show("conf");
 }
 document.querySelectorAll("[data-popt]").forEach(b=>b.onclick=()=>{
-  const iml=b.dataset.popt==="IML"; S.etq=iml?"IML":""; S.donde=iml?"Etiqueta":"Relieve"; pressCards("data-popt",b.dataset.popt); drawLogo(); $("cres").textContent=resumenSel();
+  S.etq=b.dataset.popt; S.donde="Etiqueta"; pressCards("data-popt",b.dataset.popt); drawLogo(); $("cres").textContent=resumenSel();
 });
 $("cBack").onclick=()=>show("home");
 async function postJSON(obj){
