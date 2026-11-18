@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0e">
+<meta name="apple-mobile-web-app-title" content="FOSKO">
+<link rel="apple-touch-icon" href="https://fosko.cl/wp-content/uploads/2025/11/cropped-Logo-Fosko_Favicon_GIFs-270x270.png">
+<link rel="icon" href="https://fosko.cl/wp-content/uploads/2025/11/cropped-Logo-Fosko_Favicon_GIFs-270x270.png">
+<title>FOSKO Viste tu Envase</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+/* Colores tomados de fosko.cl: amarillo #FBC10A y negro. Confirmar tonos exactos con el manual de marca.
+   Diseño: una columna solo celular; el envase es el protagonista y el pulgar manda. */
+:root{
+  --bg:#0d0d0e; --bg2:#1c1c1c; --panel:rgba(255,255,255,.07); --line:rgba(255,255,255,.14);
+  --ink:#fff; --muted:#a9a59b; --accent:#FBC10A; --accent-ink:#141007; --c:#FBC10A;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);overscroll-behavior:none}
+body{display:flex;justify-content:center;background:#050505}
+#app{width:100%;max-width:480px;height:100%;position:relative;overflow:hidden;
+  background:radial-gradient(120% 60% at 100% -10%,#3a2f08 0%,transparent 60%),radial-gradient(90% 50% at -10% 110%,#26220f 0%,transparent 60%),var(--bg)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+#studio{background:var(--bg);transform:translateY(102%);transition:transform .55s var(--ease);z-index:5;visibility:hidden}
+#studio.open{transform:none;visibility:visible}
+.hidden{display:none!important}
+
+/* ---------- Inicio ---------- */
+.top{padding:16px 18px 6px}
+.brand{display:flex;align-items:center;justify-content:space-between;height:40px}
+.brand img{height:34px;width:auto;display:block}
+.brand .wm{font-family:var(--display);font-weight:800;font-size:32px;letter-spacing:.12em}
+.steps{display:flex;gap:6px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.steps b{color:var(--accent)}
+h1{font-family:var(--display);font-weight:800;font-size:44px;line-height:.95;margin:14px 0 14px;letter-spacing:.01em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.search{position:relative}
+.search input{width:100%;height:54px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:#fff;padding:0 16px 0 46px;font-size:16px;backdrop-filter:blur(8px)}
+.search input::placeholder{color:var(--muted)}
+.search svg{z-index:1;pointer-events:none;position:absolute;left:15px;top:16px;width:22px;height:22px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round}
+.brands{display:flex;gap:8px;overflow-x:auto;padding:12px 18px 4px;scrollbar-width:none;align-items:center}
+.brands::-webkit-scrollbar{display:none}
+.brands span{flex:none;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.brands button{flex:none;height:34px;padding:0 14px;border-radius:17px;border:1px dashed rgba(255,255,255,.3);font-size:14px;font-weight:500}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 18px 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:38px;padding:0 16px;border-radius:19px;border:1px solid var(--line);font-size:14px;font-weight:600;background:var(--panel)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.grid{flex:1;overflow-y:auto;padding:8px 18px calc(28px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start;-webkit-overflow-scrolling:touch}
+.ask{grid-column:1/-1;font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.ask2{grid-column:1/-1;color:var(--muted);font-size:14px;text-align:center;margin-top:6px;text-wrap:balance}
+.size{position:relative;overflow:hidden;background:linear-gradient(160deg,rgba(255,255,255,.11),rgba(255,255,255,.04));border:1px solid var(--line);border-radius:22px;height:150px;padding:14px;text-align:left;display:flex;flex-direction:column;justify-content:flex-end;animation:rise .6s var(--ease) both;animation-delay:calc(var(--i)*70ms)}
+.size svg{position:absolute;right:8px;bottom:10px;width:64px;height:78px;opacity:.95}
+.size b{font-family:var(--display);font-size:34px;font-weight:800;line-height:.9;letter-spacing:.01em}
+.size i{font-style:normal;font-size:13px;max-width:58%;line-height:1.2;color:var(--muted);font-weight:500;margin-top:4px}
+.size.wide{grid-column:1/-1;height:84px;flex-direction:row;align-items:center;justify-content:space-between}
+.size.wide b{font-size:30px}
+.size:active,.tile:active{transform:scale(.97)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.tile{background:#fff;color:#1c1c1c;border-radius:20px;padding:10px 10px 14px;text-align:left;display:flex;flex-direction:column;gap:6px;animation:rise .5s var(--ease) both;animation-delay:calc(var(--i)*40ms);transition:transform .2s}
+.tile .ph{aspect-ratio:1/1;display:grid;place-items:center;background:radial-gradient(circle at 50% 40%,#fff,#ececec);border-radius:14px;overflow:hidden}
+.tile img{width:100%;height:100%;object-fit:contain}
+.tile .nm{font-family:var(--display);font-weight:800;font-size:21px;line-height:1;letter-spacing:.01em}
+.tile .ct{font-size:13px;color:#6a6a66;font-weight:500}
+.fallback{font-family:var(--display);font-weight:800;font-size:22px;color:#4a4a4a;text-align:center;padding:12px}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:44px 10px;text-wrap:balance}
+
+/* ---------- Estudio ---------- */
+.bar{display:flex;align-items:center;gap:12px;padding:10px 14px}
+.back{width:46px;height:46px;border-radius:15px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center}
+.back svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.bar h2{font-family:var(--display);font-size:26px;font-weight:800;margin:0;line-height:1;flex:1;letter-spacing:.01em}
+.bar small{display:block;font-family:var(--body);font-size:13px;font-weight:500;color:var(--muted);margin-top:2px}
+.stage{min-height:200px;margin:0 14px;border-radius:28px;position:relative;flex:1;min-height:0;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(70% 60% at 50% 42%,color-mix(in srgb,var(--c) 38%,#fff) 0%,#f3f3f1 62%,#e3e3e0 100%);transition:background .5s}
+.stage::after{content:"";position:absolute;left:18%;right:18%;bottom:9%;height:7%;border-radius:50%;background:radial-gradient(closest-side,rgba(13,13,14,.35),transparent);filter:blur(4px)}
+.prod{position:relative;width:84%;height:84%;display:grid;place-items:center;z-index:1;animation:float 5s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px)}}
+.prod img{max-width:100%;max-height:100%;object-fit:contain;display:block;transition:opacity .3s}
+.prod img.tinted{filter:url(#tint) drop-shadow(0 14px 14px rgba(13,13,14,.28))}
+.label{position:absolute;left:50%;top:52%;width:44%;aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:50%;background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.85;pointer-events:none}
+.badge{position:absolute;top:14px;left:14px;z-index:2;background:rgba(13,13,14,.82);color:#fff;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:7px 12px;border-radius:14px;display:flex;gap:8px;align-items:center}
+.badge i{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+.sheet{flex:none;padding:12px 16px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.hint{font-size:15px;color:var(--muted);text-align:center;min-height:20px;text-wrap:balance}
+.sw{display:flex;gap:10px;justify-content:center;align-items:center;min-height:56px}
+.sw button{width:50px;height:50px;border-radius:50%;border:3px solid transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);transition:transform .25s var(--ease)}
+.sw button[aria-pressed="true"]{border-color:#fff;transform:scale(1.15)}
+.thumb{width:50px;height:50px;border-radius:14px;background-size:cover;background-position:center;border:2px solid var(--line);flex:none;margin-right:4px}
+.row{display:flex;gap:10px}
+.btn{flex:1 0 auto;min-height:54px;height:56px;border-radius:18px;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn.main{background:var(--accent);color:var(--accent-ink);box-shadow:0 10px 24px -8px var(--accent)}
+.btn.alt{flex:0 0 38%;background:var(--panel);border:1px solid var(--line)}
+.toggle{display:flex;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 14px;height:48px;font-size:15px}
+.toggle input{width:22px;height:22px;accent-color:var(--accent)}
+input[type=file]{display:none}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{height:40px;border-radius:10px;font-weight:700;font-size:15px;color:var(--muted)}
+.tabs button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.pnl{display:flex;flex-direction:column;gap:10px}
+.seg.seg3{grid-template-columns:repeat(3,1fr)}
+.seg.sm button{height:40px;font-size:15px}
+.rng{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
+.rng input{flex:1;accent-color:var(--accent);height:32px}
+.logo{position:absolute;transform:translate(-50%,-50%);touch-action:none;z-index:3;cursor:grab;outline:2px dashed rgba(13,13,14,.35);outline-offset:3px;background-repeat:no-repeat;background-size:contain;background-position:center}
+.logo.print{mix-blend-mode:multiply}
+.logo.relieve{-webkit-mask:var(--m) center/contain no-repeat;mask:var(--m) center/contain no-repeat;background:color-mix(in srgb,var(--c) 92%,#fff);filter:drop-shadow(-1px -1px 0 rgba(255,255,255,.95)) drop-shadow(1.5px 1.5px 1px rgba(0,0,0,.5));outline:none}
+.qf{display:flex;flex-direction:column;gap:12px}
+.chs{display:flex;flex-wrap:wrap;gap:8px}
+.chs button{height:46px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:15px}
+.chs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.fld .opt{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
+.sum .lg{font-size:13px;color:var(--muted)}
+.btn.quote{background:#fff;color:#0d0d0e;box-shadow:0 10px 24px -10px #fff}
+#quote{background:var(--bg);transform:translateY(102%);transition:transform .55s var(--ease);z-index:6;visibility:hidden}
+#quote.open{transform:none;visibility:visible}
+.qwrap{flex:1;overflow-y:auto;padding:4px 16px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.sum{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:12px}
+.sum .pv{width:84px;height:84px;border-radius:14px;background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--c) 30%,#fff),#e9e9e7);display:grid;place-items:center;flex:none}
+.sum .pv img{max-width:88%;max-height:88%;object-fit:contain}
+.sum .pv img.tinted{filter:url(#tint)}
+.sum b{font-family:var(--display);font-size:24px;font-weight:800;line-height:1}
+.sum small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;margin-top:6px}
+.sum small i{width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px rgba(255,255,255,.6)}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.fld input,.fld textarea{width:100%;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:#fff;padding:0 14px;height:52px;font:500 17px var(--body);text-transform:none;letter-spacing:0}
+.fld textarea{height:84px;padding:12px 14px;resize:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qh{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin:8px 0 0}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{height:52px;border-radius:14px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:16px}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.note{font-size:13px;color:var(--muted);text-align:center;text-wrap:balance}
+.done{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;white-space:pre-wrap;font-size:14px;line-height:1.45}
+svg.defs{position:absolute;width:0;height:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg class="defs" aria-hidden="true" focusable="false">
+  <filter id="tint" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+    <feFlood id="flood" flood-color="#FBC10A" result="c"/>
+    <feComposite in="c" in2="SourceAlpha" operator="in" result="s"/>
+    <feBlend in="SourceGraphic" in2="s" mode="multiply"/>
+  </filter>
+</svg>
+
+<div id="app">
+  <section class="screen" id="home">
+    <div class="top">
+      <button class="brand" id="brand" aria-label="Inicio">
+        <img src="https://fosko.cl/wp-content/uploads/2022/05/Logo-Fosko_White.png" alt="FOSKO" onerror="this.outerHTML='<span class=wm>FOSKO</span>'">
+        <span class="steps"><b>1</b> Elige <b>2</b> Foto <b>3</b> Viste</span>
+      </button>
+      <h1>Viste tu envase con <em>tu marca</em></h1>
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Palabra clave o marca" aria-label="Buscar envase" autocomplete="off">
+      </div>
+    </div>
+    <div class="brands" id="brands"><span>Prueba</span></div>
+    <div class="chips hidden" id="chips" role="group" aria-label="Tamaño"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="screen" id="studio" aria-hidden="true">
+    <div class="bar">
+      <button class="back" id="back" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2><span id="pname"></span><small id="psize"></small></h2>
+    </div>
+    <div class="stage">
+      <div class="badge hidden" id="badge"><i></i><span id="hex"></span></div>
+      <div class="prod">
+        <img id="pimg" alt="">
+        <div class="label hidden" id="lbl"></div>
+        <div class="logo hidden" id="logo" role="img" aria-label="Tu logo"></div>
+      </div>
+    </div>
+    <div class="sheet">
+      <div class="tabs" id="tabs" role="tablist"><button data-t="color" aria-pressed="true">Color</button><button data-t="logo" aria-pressed="false">Logo y relieve</button></div>
+      <div class="pnl" id="pColor">
+        <div class="hint" id="hint">Toma una foto de la marca o producto que quieres imitar.</div>
+        <div class="sw" id="sw"></div>
+        <label class="toggle hidden" id="lblRow"><span>Mostrar la foto como etiqueta</span><input type="checkbox" id="lblChk"></label>
+        <div class="row">
+          <button class="btn main" id="cam"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Tomar foto</button>
+          <button class="btn alt" id="gal">Galería</button>
+        </div>
+      </div>
+      <div class="pnl hidden" id="pLogo">
+        <div class="hint" id="lhint">Sube tu logo para ponerlo en la tapa, el cuerpo o el mango de una cuchara. Arrástralo para moverlo.</div>
+        <button class="btn main" id="addLogo">Agregar mi logo</button>
+        <div class="seg sm" id="segMode"><button type="button" data-v="print" aria-pressed="true">Impreso</button><button type="button" data-v="relieve" aria-pressed="false">Relieve (apostillado)</button></div>
+        <div class="seg sm seg3" id="segPlace"><button type="button" data-v="Cuerpo" aria-pressed="true">Cuerpo</button><button type="button" data-v="Tapa" aria-pressed="false">Tapa</button><button type="button" data-v="Mango" aria-pressed="false">Mango</button></div>
+        <label class="rng">Tamaño<input type="range" id="lsize" min="12" max="80" value="34"></label>
+        <button class="btn alt" id="rmLogo" style="flex:none;height:46px">Quitar logo</button>
+      </div>
+      <input type="file" id="fileLogo" accept="image/*">
+      <button class="btn quote hidden" id="toQuote">Versión final: pedir cotización</button>
+      <input type="file" id="fileCam" accept="image/*" capture="environment">
+      <input type="file" id="fileGal" accept="image/*">
+    </div>
+  </section>
+  <section class="screen" id="quote" aria-hidden="true">
+    <div class="bar">
+      <button class="back" id="qback" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h2><span>Pedir cotización</span><small>Respondemos a la brevedad</small></h2>
+    </div>
+    <form class="qwrap" id="qform" autocomplete="on">
+      <div class="sum"><div class="pv"><img id="qimg" alt=""></div><div><b id="qname"></b><small><i></i><span id="qcolor"></span><span id="qlab"></span></small><small class="lg" id="qlogo"></small></div></div>
+      <div id="qfields" class="qf"></div>
+      <button class="btn main" type="submit" id="send">Enviar cotización</button>
+      <div class="note" id="qnote"></div>
+      <div class="done hidden" id="qsum"></div>
+      <button class="btn alt hidden" type="button" id="copy" style="flex:none;width:100%">Copiar resumen</button>
+    </form>
+  </section>
+</div>
+
+<script>
+const B = "https://fosko.cl/wp-content/uploads/";
+// Catálogo de fosko.cl (solo PNG con fondo transparente, que se pueden teñir)
+const P = [
+ ["Pote VD 500g","Envases","2025/07/Pote-VD-500g_1.png"],["Pote VD 250g","Envases","2025/07/Pote-VD-250g_1.png"],
+ ["Pote HVN","Envases","2025/07/Pote-HVN_1.png"],["Pote HVN 1.9","Envases","2025/07/Pote-HVN-1.9_1.png"],
+ ["Rectangular con Manillas","Envases","2025/07/Rectangular-con-Manillas_1.png"],["Pote CRM","Envases","2025/07/Pote-CRM_1.png"],
+ ["Baúl Rectangular","Envases","2025/07/Baul-Rectangular_1.png"],["Baúl Rectangular 2 Lts","Envases","2025/07/Baul-Rectangular-2-Litros_1.png"],
+ ["MJ","Envases","2025/07/MJ_1.png"],["Bandera","Envases","2025/07/Bandera_1.png"],
+ ["Huracán 250g","Envases","2025/07/Huracan-250g_1.png"],["Huracán 500g","Envases","2025/07/Huracan-500g_1.png"],
+ ["SPU 375","Envases","2025/07/SPU-375_1.png"],["Pote AGR 150","Envases","2025/07/AGR_225_1.png"],
+ ["EuroPote 250g","Envases","2025/07/EuroPote-250g_1.png"],["EuroPote 500g","Envases","2025/07/EuroPote_500_1.png"],
+ ["PF","Envases","2025/07/PF_1.png"],["Pote GL","Envases","2025/07/Pote-GL_1.png"],
+ ["Pote Cuadrado 800g","Envases","2025/07/Pote-Cuadrado-800g_1.png"],["Pote ML Tapa Alta","Envases","2025/07/Pote-ML-Tapa-Alta_1.png"],
+ ["Pote ML Tapa Baja","Envases","2025/07/Pote-ML-Tapa-Baja_1.png"],["GF 500","Envases","2025/07/GF-500_1.png"],
+ ["Pote WT","Envases","2025/07/Pote-WT_1.png"],["Pote Piber","Envases","2025/07/Pote-PIBER_1.png"],
+ ["Pote MTQ","Envases","2025/07/Pote-MTQ_1.png"],["Pote Onda 250g","Envases","2025/07/Pote-Onda-250g_1.png"],
+ ["Pote Onda 500g","Envases","2025/07/Pote-Onda-500g_1.png"],["Copa 160","Envases","2025/07/Pote_160_1.png"],
+ ["Copa 250","Envases","2025/07/Pote_250_1.png"],
+ ["Balde 3 Lts","Promocionales","2025/10/Balde-3Lts_1.png"],["Balde 5 Lts","Promocionales","2025/10/Balde-5Lts_1.png"],
+ ["Vaso 500 ml","Promocionales","2025/10/01_Vaso_500_Promo.png"],
+ ["Copa Balón","Heladería","2025/07/Copa-Balon.png"],["Copa Italia","Heladería","2025/07/Copa-Italia.png"],
+ ["Copa Sorpresa","Heladería","2025/07/Copa-Sorpresa.png"],["Mini Copa Cono","Heladería","2025/07/Mini-Copa-Cono.png"],
+ ["Cuchara 18 cm","Cucharas y mangos","2025/07/Cuchara-18-cm.png"],["Cuchara Avión","Cucharas y mangos","2025/07/Cuchara-Avion.png"],
+ ["Cuchara Paleta","Cucharas y mangos","2025/07/Cuchara-Paleta.png"],["Cuchara Postre","Cucharas y mangos","2025/07/Cuchara-Postre.png"],
+ ["Cuchara Larga Logo","Cucharas y mangos","2025/07/Cuchara-larga-logo.png"],["Revolvedor de Trago","Cucharas y mangos","2025/07/Revolvedor-de-trago.png"],
+ ["Pincha Cocktail","Cucharas y mangos","2025/07/Pincha-Cocktail.png"],
+ ["Dispensador 150","Laboratorio","2025/07/Dispensador-150.png"],["Dispensador 300","Laboratorio","2025/07/Dispensador-300.png"],
+ ["Dispensador 500","Laboratorio","2025/07/Dispensador-500.png"],["Jabonera Dove","Laboratorio","2025/07/Jabonera-Dove.png"]
+].map(([n,c,u])=>({name:n,cat:c,url:B+u}));
+
+// Tamaño en ml/g según el nombre en fosko.cl. Si no está aquí, el sitio no lo indica.
+const SIZE = {"Pote VD 500g":500,"Pote VD 250g":250,"Pote HVN 1.9":1900,"Huracán 250g":250,"Huracán 500g":500,"SPU 375":375,
+ "Pote AGR 150":150,"EuroPote 250g":250,"EuroPote 500g":500,"Pote Cuadrado 800g":800,"GF 500":500,"Pote Onda 250g":250,
+ "Pote Onda 500g":500,"Copa 160":160,"Copa 250":250,"Baúl Rectangular 2 Lts":2000};
+// MARCAS: marca o producto del mercado -> envase FOSKO. Completar con la lista oficial.
+const MARCAS = {"Pote Cuadrado 800g":["bio sal","sal lobos","sal"],"Pote HVN":["hvn magnum","magnum"],"Pote HVN 1.9":["hvn magnum","magnum"]};
+const SUGERIDAS = ["Sal Lobos","Bio Sal","HVN Magnum","Balde","Vaso"];
+const CLAVES = {"Cuchara":"cuchara mango cucharita helado","Revolvedor":"revolvedor mango trago","Pincha":"pincha mango","Balde":"balde cubo manilla","Vaso":"vaso","Copa":"copa helado","Pote":"pote envase","Baúl":"baul cofre","Dispensador":"dispensador","Jabonera":"jabonera"};
+const GROUPS = [
+ {id:"Hasta 250",big:"250",unit:"ml/g o menos",h:46},{id:"251 a 500",big:"500",unit:"251 a 500 ml/g",h:62},
+ {id:"501 a 1000",big:"1 L",unit:"501 a 1000 ml/g",h:78},{id:"Más de 1 L",big:"+1 L",unit:"más de un litro",h:96},
+ {id:"Promocionales",big:"Promocionales",unit:"baldes y vasos",wide:true},{id:"Cucharas y mangos",big:"Cucharas y mangos",unit:"logo en el mango",wide:true},{id:"Otros formatos",big:"Otros formatos",unit:"tamaño a consultar",wide:true}
+];
+function norm(t){return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
+P.forEach(p=>{
+  p.size = SIZE[p.name]||0;
+  p.group = p.cat==="Promocionales" ? "Promocionales" : p.cat==="Cucharas y mangos" ? "Cucharas y mangos" : !p.size ? "Otros formatos"
+    : p.size<=250 ? "Hasta 250" : p.size<=500 ? "251 a 500" : p.size<=1000 ? "501 a 1000" : "Más de 1 L";
+  p.sizeLbl = p.size ? (p.size>=1000 ? (p.size/1000)+" L" : p.size+" ml/g") : "";
+  const k = Object.keys(CLAVES).filter(w=>p.name.includes(w)).map(w=>CLAVES[w]).join(" ");
+  p.tags = norm([p.name,p.cat,p.sizeLbl,k,(MARCAS[p.name]||[]).join(" ")].join(" "));
+});
+
+const $ = id => document.getElementById(id);
+let cat = null, photoURL = null;
+
+// Ícono de pote a escala: más grande el tamaño, más alto el pote
+function tub(h){
+  const w = 56 + h*.18, x = (84-w)/2, top = 100-h;
+  return '<svg viewBox="0 0 84 100" aria-hidden="true"><rect x="'+(x-3)+'" y="'+top+'" width="'+(w+6)+'" height="9" rx="4" fill="#fff" opacity=".9"/>'
+   +'<path d="M'+x+' '+(top+9)+'h'+w+'l-6 '+(h-9)+'h-'+(w-12)+'z" fill="var(--accent)"/>'
+   +'<path d="M'+(x+6)+' '+(top+16)+'h6l-2 '+(h-20)+'h-5z" fill="#fff" opacity=".28"/></svg>';
+}
+function bucket(){return '<svg viewBox="0 0 84 100" aria-hidden="true"><path d="M14 40q28-30 56 0" stroke="#fff" stroke-width="3" fill="none" opacity=".8"/><path d="M12 44h60l-7 52H19z" fill="var(--accent)"/></svg>';}
+
+function renderChips(){
+  const box=$("chips"); box.innerHTML="";
+  box.classList.toggle("hidden", !cat && !$("q").value.trim());
+  [{id:"Todos"},...GROUPS].forEach(g=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=g.id==="Todos"?"Todos":g.id;
+    b.setAttribute("aria-pressed",String(g.id===cat));
+    b.onclick=()=>{cat=g.id;renderGrid();}; box.appendChild(b);
+  });
+}
+function renderGrid(){
+  const q = norm($("q").value.trim()), g = $("grid"); g.innerHTML = ""; g.scrollTop = 0;
+  renderChips();
+  if(!cat && !q){
+    g.insertAdjacentHTML("beforeend",'<div class="ask">Elige el tamaño</div>');
+    GROUPS.forEach((o,i)=>{
+      const n = P.filter(p=>p.group===o.id).length;
+      const b=document.createElement("button"); b.className="size"+(o.wide?" wide":""); b.style.setProperty("--i",i);
+      b.innerHTML=(o.wide ? '<span><b>'+o.big+'</b><br><i>'+o.unit+' · '+n+'</i></span>'+(o.id==="Promocionales"?bucket():"")
+                          : tub(o.h)+'<b>'+o.big+'</b><i>'+o.unit+'<br>'+n+(n===1?' envase':' envases')+'</i>');
+      b.onclick=()=>{cat=o.id;renderGrid();}; g.appendChild(b);
+    });
+    g.insertAdjacentHTML("beforeend",'<div class="ask2">o busca arriba por palabra clave o por la marca que vendes</div>');
+    return;
+  }
+  const words = q.split(/\s+/).filter(Boolean);
+  const list = P.filter(p => (!cat||cat==="Todos"||p.group===cat) && words.every(w=>p.tags.includes(w)));
+  if(!list.length){ g.innerHTML='<div class="empty">No encontramos ese envase. Prueba con otra palabra o quita el filtro de tamaño.</div>'; return; }
+  list.forEach((p,i)=>{
+    const t=document.createElement("button"); t.className="tile"; t.style.setProperty("--i",Math.min(i,8));
+    const ph=document.createElement("div"); ph.className="ph";
+    const im=document.createElement("img"); im.loading="lazy"; im.alt=p.name; im.src=p.url;
+    im.onerror=()=>{ph.innerHTML='<span class="fallback">'+p.name+'</span>';};
+    ph.appendChild(im); t.appendChild(ph);
+    t.insertAdjacentHTML("beforeend",'<div class="nm">'+p.name+'</div><div class="ct">'+(p.sizeLbl||p.cat)+'</div>');
+    t.onclick=()=>openStudio(p); g.appendChild(t);
+  });
+}
+SUGERIDAS.forEach(s=>{
+  const b=document.createElement("button"); b.textContent=s;
+  b.onclick=()=>{$("q").value=s;renderGrid();}; $("brands").appendChild(b);
+});
+$("q").oninput = renderGrid;
+$("brand").onclick = ()=>{cat=null;$("q").value="";renderGrid();};
+
+function setColor(c){
+  document.documentElement.style.setProperty("--c",c);
+  $("flood").setAttribute("flood-color",c);
+}
+var openStudio=function(p){
+  photoURL = null;
+  $("pname").textContent = p.name; $("psize").textContent = p.sizeLbl || p.cat;
+  const im=$("pimg"); im.classList.remove("tinted"); im.src=p.url; im.alt=p.name;
+  $("sw").innerHTML=""; $("lbl").classList.add("hidden"); $("lblRow").classList.add("hidden"); $("lblChk").checked=false; $("badge").classList.add("hidden");
+  $("hint").textContent="Toma una foto de la marca o producto que quieres imitar.";
+  setColor("#FBC10A");
+  $("studio").classList.add("open"); $("studio").setAttribute("aria-hidden","false");
+}
+$("back").onclick=()=>{ $("studio").classList.remove("open"); $("studio").setAttribute("aria-hidden","true"); };
+
+$("cam").onclick=()=>$("fileCam").click();
+$("gal").onclick=()=>$("fileGal").click();
+["fileCam","fileGal"].forEach(id=>$(id).onchange=e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  if(photoURL) URL.revokeObjectURL(photoURL);
+  photoURL=URL.createObjectURL(f);
+  const img=new Image();
+  img.onload=()=>{ showPalette(extract(img));
+    const k=Math.min(1,800/Math.max(img.width,img.height)),c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height); photoThumb=c.toDataURL("image/jpeg",.8); };
+  img.onerror=()=>{$("hint").textContent="No pudimos leer esa foto. Prueba con otra.";};
+  img.src=photoURL; e.target.value="";
+});
+
+// Hasta 5 colores dominantes; favorece colores de marca frente a grises
+function extract(img){
+  const s=64,c=document.createElement("canvas"); c.width=c.height=s;
+  const x=c.getContext("2d",{willReadFrequently:true});
+  const r=Math.max(s/img.width,s/img.height);
+  x.drawImage(img,(s-img.width*r)/2,(s-img.height*r)/2,img.width*r,img.height*r);
+  const d=x.getImageData(0,0,s,s).data,bins={};
+  for(let i=0;i<d.length;i+=4){
+    if(d[i+3]<200) continue;
+    const R=d[i],G=d[i+1],Bl=d[i+2],mx=Math.max(R,G,Bl),mn=Math.min(R,G,Bl),sat=mx?(mx-mn)/mx:0;
+    if(mx>238&&sat<.12) continue; if(mx<28) continue;
+    const k=(R>>4)+","+(G>>4)+","+(Bl>>4);
+    const b=bins[k]||(bins[k]={n:0,w:0,R:0,G:0,B:0});
+    b.n++; b.w+=1+sat*3; b.R+=R; b.G+=G; b.B+=Bl;
+  }
+  const arr=Object.values(bins).sort((a,b)=>b.w-a.w).map(b=>[b.R/b.n,b.G/b.n,b.B/b.n]),out=[];
+  for(const col of arr){ if(out.every(o=>Math.hypot(o[0]-col[0],o[1]-col[1],o[2]-col[2])>60)) out.push(col); if(out.length===5) break; }
+  return out.map(a=>"#"+a.map(v=>Math.round(v).toString(16).padStart(2,"0")).join(""));
+}
+function showPalette(cols){
+  const sw=$("sw"); sw.innerHTML="";
+  if(!cols.length){ $("hint").textContent="No detectamos colores claros. Acércate más a la marca."; return; }
+  const th=document.createElement("div"); th.className="thumb"; th.style.backgroundImage="url("+photoURL+")"; sw.appendChild(th);
+  cols.forEach((c,i)=>{
+    const b=document.createElement("button"); b.style.background=c; b.setAttribute("aria-label","Color "+c);
+    b.onclick=()=>pick(c,b); sw.appendChild(b); if(i===0) pick(c,b);
+  });
+  $("hint").textContent="Toca un color para vestir el envase.";
+  $("lblRow").classList.remove("hidden"); $("lbl").style.backgroundImage="url("+photoURL+")";
+  $("cam").lastChild.textContent="Otra foto";
+}
+var pick=function(c,btn){
+  document.querySelectorAll("#sw button").forEach(x=>x.setAttribute("aria-pressed","false"));
+  btn.setAttribute("aria-pressed","true"); setColor(c);
+  $("pimg").classList.add("tinted"); $("hex").textContent=c.toUpperCase(); $("badge").classList.remove("hidden");
+}
+$("lblChk").onchange=e=>$("lbl").classList.toggle("hidden",!e.target.checked);
+
+// ---------- Logo / relieve ----------
+const LG = {on:false,mode:"print",place:"Cuerpo",x:50,y:56,size:34,ratio:1,url:null,mask:null,thumb:null,name:""};
+const PLACES = {Cuerpo:[50,56],Tapa:[50,26],Mango:[50,80]};
+function tabTo(t){
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.t===t)));
+  $("pColor").classList.toggle("hidden",t!=="color"); $("pLogo").classList.toggle("hidden",t!=="logo");
+}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>tabTo(b.dataset.t));
+function drawLogo(){
+  const el=$("logo"); if(!LG.on){el.classList.add("hidden");return;}
+  el.classList.remove("hidden"); el.className="logo "+LG.mode;
+  el.style.left=LG.x+"%"; el.style.top=LG.y+"%"; el.style.width=LG.size+"%"; el.style.aspectRatio=String(LG.ratio);
+  el.style.backgroundImage = LG.mode==="print" ? "url("+LG.url+")" : "none";
+  el.style.setProperty("--m","url("+LG.mask+")");
+}
+function seg(id,fn){ $(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{ $(id).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); fn(b.dataset.v); }); }
+seg("segMode",v=>{LG.mode=v; if(v==="relieve") $("lhint").textContent="El relieve se fabrica con molde: lo cotizamos según el logo."; drawLogo();});
+seg("segPlace",v=>{LG.place=v;[LG.x,LG.y]=PLACES[v];drawLogo();});
+$("lsize").oninput=e=>{LG.size=+e.target.value;drawLogo();};
+$("addLogo").onclick=()=>$("fileLogo").click();
+$("rmLogo").onclick=()=>{LG.on=false;drawLogo();};
+$("fileLogo").onchange=e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const u=URL.createObjectURL(f), img=new Image();
+  img.onload=()=>{
+    const k=Math.min(1,700/Math.max(img.width,img.height)), w=Math.round(img.width*k), h=Math.round(img.height*k);
+    const c=document.createElement("canvas"); c.width=w; c.height=h; const x=c.getContext("2d",{willReadFrequently:true}); x.drawImage(img,0,0,w,h);
+    LG.url=c.toDataURL("image/png"); LG.thumb=LG.url; LG.ratio=w/h; LG.name=f.name;
+    // silueta para el relieve: usa la transparencia del logo o, si no tiene, lo oscuro sobre fondo claro
+    const d=x.getImageData(0,0,w,h), p=d.data; let transp=false; for(let i=3;i<p.length;i+=4) if(p[i]<250){transp=true;break;}
+    for(let i=0;i<p.length;i+=4){ const lum=.299*p[i]+.587*p[i+1]+.114*p[i+2]; const a=transp?p[i+3]:Math.max(0,Math.min(255,(235-lum)*3)); p[i]=p[i+1]=p[i+2]=0; p[i+3]=a; }
+    x.putImageData(d,0,0); LG.mask=c.toDataURL("image/png");
+    LG.on=true; [LG.x,LG.y]=PLACES[LG.place]; drawLogo(); $("toQuote").classList.remove("hidden");
+  };
+  img.onerror=()=>{$("lhint").textContent="No pudimos leer ese logo. Prueba con PNG o JPG.";};
+  img.src=u; e.target.value="";
+};
+// arrastrar el logo con el dedo
+(function(){ const el=$("logo"); let drag=false;
+  el.addEventListener("pointerdown",e=>{drag=true;el.setPointerCapture(e.pointerId);});
+  el.addEventListener("pointerup",()=>drag=false);
+  el.addEventListener("pointermove",e=>{ if(!drag) return; const r=el.parentElement.getBoundingClientRect();
+    LG.x=Math.max(5,Math.min(95,(e.clientX-r.left)/r.width*100)); LG.y=Math.max(5,Math.min(95,(e.clientY-r.top)/r.height*100)); drawLogo(); });
+})();
+
+// ---------- Cotización ----------
+// Para recibir pedidos completos (con foto y logo) en una planilla: pegar aquí la URL del receptor (ver receptor-cotizaciones.gs).
+const ENDPOINT = "";
+// Completar con los datos reales de FOSKO para que el pedido llegue solo:
+let photoThumb = null;
+const DEST_WHATSAPP = "";   // ej. "56912345678" (código país + número, sin +)
+const DEST_EMAIL = "";      // ej. "cotizaciones@fosko.cl"
+let curP = null, lastSummary = "";
+const _open = openStudio;
+openStudio = function(p){ curP = p; $("toQuote").classList.add("hidden"); LG.on=false; drawLogo(); tabTo("color"); _open(p); };
+const _pick = pick;
+pick = function(c,b){ _pick(c,b); $("toQuote").classList.remove("hidden"); };
+$("toQuote").onclick = ()=>{
+  $("qname").textContent = curP.name + (curP.sizeLbl ? " · "+curP.sizeLbl : "");
+  const im = $("qimg"); im.src = curP.url; im.className = "tinted";
+  $("qcolor").textContent = $("hex").textContent;
+  $("qlab").textContent = $("lblChk").checked ? " · con etiqueta de tu foto" : "";
+  $("qlogo").textContent = LG.on ? "Logo "+(LG.mode==="relieve"?"en relieve (apostillado)":"impreso")+" · "+LG.place : "";
+  $("qsum").classList.add("hidden"); $("copy").classList.add("hidden"); $("qnote").textContent = "";
+  prefillQuote();
+  $("quote").classList.add("open"); $("quote").setAttribute("aria-hidden","false");
+};
+$("qback").onclick = ()=>{ $("quote").classList.remove("open"); $("quote").setAttribute("aria-hidden","true"); };
+// Casillas del Formulario CPV de FOSKO, en el mismo orden. Las marcadas "int" las completa el equipo si el cliente no las sabe.
+const EJEC = ["Ignacio Quintar","Jesus Tineo","Cherie Agurto","Jose Vega","Víctor Sonza","Ricardo Silva"];
+const CAMPOS = [
+ {h:"Tu empresa"},
+ {k:"cliente",l:"Cliente",t:"text",ac:"organization",req:1},
+ {k:"productoCliente",l:"Producto Cliente",t:"text",ph:"Ej. Sal Lobos, Magnum"},
+ {h:"Qué necesitas"},
+ {k:"tipo",l:"Tipo",ch:["Línea","Promoción","Desarrollo"]},
+ {k:"anual",l:"Cantidad Anual",t:"number",ph:"Ej. 120000",req:1},
+ {k:"entregas",l:"Cantidad de entregas al año",ch:["4","3"],note:"4 = trimestral · 3 = cuatrimestral",req:1},
+ {k:"cantEtiq",l:"Cantidad a cotizar etiquetas",t:"number",ph:"Si no aplica, déjalo vacío"},
+ {k:"materialidad",l:"Materialidad",t:"text",ph:"Ej. PP, PET"},
+ {k:"color",l:"Color",t:"text"},
+ {h:"Etiqueta y decoración"},
+ {k:"etiqueta",l:"Etiqueta",ch:["Autoadhesiva","IML","N/A"]},
+ {k:"dondeEtiq",l:"¿En dónde lleva la etiqueta?",t:"text",ph:"Ej. cuerpo, tapa"},
+ {k:"proceso",l:"Proceso productivo al cual se somete la etiqueta",t:"text",ph:"Ej. frío, microondas, lavado"},
+ {k:"nColores",l:"Cantidad de colores",t:"number"},
+ {k:"nDisenos",l:"Cantidad de diseños",t:"number"},
+ {k:"transp",l:"Transparencias",ch:["SI","NO"]},
+ {k:"relieve",l:"Lleva marca en relieve",ch:["SI","NO"]},
+ {h:"Precio y servicios"},
+ {k:"precio",l:"Precio Objetivo",t:"text",ph:"Opcional"},
+ {k:"servicio",l:"Servicio",ch:["Etiquetado","Armado","Fajado","Flowpeado","Serigrafía","N/A"],multi:1},
+ {k:"comServicio",l:"Comentarios del servicio",t:"area"},
+ {k:"ejecutivo",l:"Ejecutivo que solicita",ch:EJEC,req:1},
+ {h:"Tus datos de contacto"},
+ {k:"nombre",l:"Nombre",t:"text",ac:"name",req:1},
+ {k:"cargo",l:"Cargo",t:"text",ac:"organization-title"},
+ {k:"mail",l:"Mail",t:"email",ac:"email",req:1},
+ {k:"fono",l:"Fono",t:"tel",ac:"tel"}
+];
+const QV = {};  // valores de las casillas con opciones
+function buildQuote(){
+  const box=$("qfields"); box.innerHTML="";
+  CAMPOS.forEach(c=>{
+    if(c.h){ const h=document.createElement("div"); h.className="qh"; h.textContent=c.h; box.appendChild(h); return; }
+    const w=document.createElement("div"); w.className="fld";
+    w.insertAdjacentHTML("afterbegin",'<span>'+c.l+(c.req?"":' <span class="opt">(opcional)</span>')+'</span>');
+    if(c.ch){
+      const g=document.createElement("div"); g.className="chs"; g.id="q_"+c.k; QV[c.k]=c.multi?[]:"";
+      c.ch.forEach(o=>{ const b=document.createElement("button"); b.type="button"; b.textContent=o; b.dataset.v=o; b.setAttribute("aria-pressed","false");
+        b.onclick=()=>{ if(c.multi){ const i=QV[c.k].indexOf(o); i<0?QV[c.k].push(o):QV[c.k].splice(i,1); }
+                         else QV[c.k]=(QV[c.k]===o&&!c.req)?"":o;
+                         g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(c.multi?QV[c.k].includes(x.dataset.v):QV[c.k]===x.dataset.v)));
+                         if(c.k==="entregas") calcEntrega(); };
+        g.appendChild(b); });
+      w.appendChild(g);
+    } else {
+      const el=document.createElement(c.t==="area"?"textarea":"input"); el.id="q_"+c.k;
+      if(c.t!=="area"){ el.type=c.t; if(c.t==="number") el.inputMode="numeric"; }
+      if(c.ph) el.placeholder=c.ph; if(c.ac) el.autocomplete=c.ac; if(c.req) el.required=true;
+      w.appendChild(el);
+    }
+    if(c.note) w.insertAdjacentHTML("beforeend",'<span class="opt">'+c.note+'</span>');
+    box.appendChild(w);
+  });
+  $("q_anual").oninput = calcEntrega;
+}
+function setCh(k,val){ QV[k]=val; $("q_"+k).querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.v===val))); }
+function calcEntrega(){ const a=+$("q_anual").value; if(a&&!$("q_cantEtiq").dataset.touched) $("q_cantEtiq").value = a; }
+function prefillQuote(){
+  setCh("tipo", curP.cat==="Promocionales" ? "Promoción" : "Línea");
+  setCh("entregas","4");
+  $("q_color").value = $("qcolor").textContent;
+  setCh("etiqueta", $("lblChk").checked ? "IML" : "N/A");
+  setCh("relieve", (LG.on && LG.mode==="relieve") ? "SI" : "NO");
+  setCh("transp","NO");
+  $("q_dondeEtiq").value = LG.on ? LG.place : "";
+  if(!$("q_nDisenos").value && LG.on) $("q_nDisenos").value = 1;
+}
+buildQuote();
+$("q_cantEtiq").oninput = e=>{ e.target.dataset.touched = "1"; };
+function cpvData(){
+  const v=k=>{ const x=QV[k]!==undefined ? QV[k] : $("q_"+k).value.trim(); return Array.isArray(x)?x.join(", "):x; };
+  const deco = LG.on ? "Logo "+(LG.mode==="relieve"?"en relieve (apostillado)":"impreso")+" en "+LG.place+" · tamaño "+LG.size+"% · posición "+Math.round(LG.x)+"/"+Math.round(LG.y) : "Sin logo";
+  const cpv = {"Cliente":v("cliente"),"Producto Fosko":$("qname").textContent,"Producto Cliente":v("productoCliente"),"Tipo":v("tipo"),
+    "Cantidad Anual":v("anual"),"Cantidad de entregas al año":v("entregas"),"Cantidad a cotizar etiquetas":v("cantEtiq"),"Materialidad":v("materialidad"),
+    "Color":v("color"),"Etiqueta":v("etiqueta"),"En donde lleva la etiqueta?":v("dondeEtiq"),"Proceso productivo al cual se somete la etiqueta":v("proceso"),
+    "Cantidad de colores?":v("nColores"),"Cantidad de diseños?":v("nDisenos"),"Transparencias?":v("transp"),"Lleva marca en relieve?":v("relieve"),
+    "Precio Objetivo":v("precio"),"Servicio":v("servicio"),"Comentarios del servicio":v("comServicio"),"Ejecutivo que solicita":v("ejecutivo")};
+  const contacto = {"Nombre":v("nombre"),"Cargo":v("cargo"),"Mail":v("mail"),"Fono":v("fono")};
+  return {cpv,contacto,deco};
+}
+$("qform").onsubmit = async e=>{
+  e.preventDefault();
+  if(!QV.ejecutivo){ $("qnote").textContent="Elige tu ejecutivo FOSKO."; return; }
+  if(!QV.entregas){ $("qnote").textContent="Elige la cantidad de entregas al año."; return; }
+  const {cpv,contacto,deco}=cpvData();
+  const lines=["COTIZACIÓN DESDE APP FOSKO (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),"Decoración (diseño en app): "+deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)];
+  lastSummary=lines.join("\n");
+  $("qsum").textContent=lastSummary; $("qsum").classList.remove("hidden"); $("copy").classList.remove("hidden");
+  if(ENDPOINT){
+    $("send").disabled=true; $("qnote").textContent="Enviando…";
+    try{
+      await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:photoThumb||"",logo:LG.on?LG.thumb:"",urlProducto:curP.url})});
+      $("qnote").textContent="Listo. Recibimos tu solicitud y te respondemos a la brevedad."; $("qsum").classList.add("hidden"); $("copy").classList.add("hidden");
+    }catch(_){ $("qnote").textContent="No se pudo enviar. Copia el resumen y envíalo a tu ejecutivo FOSKO."; }
+    $("send").disabled=false; return;
+  }
+  if(DEST_WHATSAPP){ location.href="https://wa.me/"+DEST_WHATSAPP+"?text="+encodeURIComponent(lastSummary); $("qnote").textContent="Se abre WhatsApp con tu pedido listo para enviar."; }
+  else if(DEST_EMAIL){ location.href="mailto:"+DEST_EMAIL+"?subject="+encodeURIComponent("Cotización "+$("qname").textContent)+"&body="+encodeURIComponent(lastSummary); $("qnote").textContent="Se abre tu correo con el pedido listo para enviar."; }
+  else $("qnote").textContent="Resumen listo. Cópialo y envíalo a tu ejecutivo FOSKO.";
+  $("qsum").scrollIntoView({behavior:"smooth",block:"center"});
+};
+$("copy").onclick = async ()=>{ try{ await navigator.clipboard.writeText(lastSummary); $("copy").textContent="Copiado"; }catch(_){ $("copy").textContent="Selecciona el texto y cópialo"; } };
+renderGrid();
+</script>
+</body>
+</html>
