@@ -86,6 +86,8 @@ h1 em{font-style:normal;color:var(--accent)}
 @keyframes float{50%{transform:translateY(-6px)}}
 .prod img{max-width:100%;max-height:100%;object-fit:contain;display:block;transition:opacity .3s}
 .prod img.tinted{filter:url(#tint) drop-shadow(0 14px 14px rgba(13,13,14,.28))}
+.prod img.stack{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.prod img.tinted2{filter:url(#tint2) drop-shadow(0 14px 14px rgba(13,13,14,.28))}
 .label{position:absolute;left:50%;top:52%;width:44%;aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:50%;background-size:cover;background-position:center;mix-blend-mode:multiply;opacity:.85;pointer-events:none}
 .badge{position:absolute;top:14px;left:14px;z-index:2;background:rgba(13,13,14,.82);color:#fff;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:7px 12px;border-radius:14px;display:flex;gap:8px;align-items:center}
 .badge i{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px rgba(255,255,255,.6)}
@@ -182,6 +184,11 @@ svg.defs{position:absolute;width:0;height:0}
 </head>
 <body>
 <svg class="defs" aria-hidden="true" focusable="false">
+  <filter id="tint2" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
+    <feFlood id="flood2" flood-color="#FFFFFF" result="c"/>
+    <feComposite in="c" in2="SourceAlpha" operator="in" result="s"/>
+    <feBlend in="SourceGraphic" in2="s" mode="multiply"/>
+  </filter>
   <filter id="tint" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
     <feFlood id="flood" flood-color="#FBC10A" result="c"/>
     <feComposite in="c" in2="SourceAlpha" operator="in" result="s"/>
@@ -266,7 +273,7 @@ svg.defs{position:absolute;width:0;height:0}
     </div>
     <div class="stage cstage">
       <div class="badge" id="badge"><i></i><span id="hex"></span></div>
-      <div class="prod"><img id="pimg" alt=""><div class="logo hidden" id="logo" role="img" aria-label="Tu logo"></div></div>
+      <div class="prod"><img id="pimg" alt=""><img id="pimg2" class="hidden" alt=""><div class="logo hidden" id="logo" role="img" aria-label="Tu logo"></div></div>
     </div>
     <form class="cbody" id="cform" autocomplete="on">
       <div class="done" id="cres" style="font-size:15px"></div>
@@ -352,7 +359,7 @@ const P = [
  ["Cuchara Larga Logo","Cucharas","2025/07/Cuchara-larga-logo.png"],["Revolvedor de Trago","Cucharas","2025/07/Revolvedor-de-trago.png"],
  ["Pincha Cocktail","Cucharas","2025/07/Pincha-Cocktail.png"],
  ["Dispensador 150","Laboratorio","2025/07/Dispensador-150.png"],["Dispensador 300","Laboratorio","2025/07/Dispensador-300.png"],
- ["Dispensador 500","Laboratorio","2025/07/Dispensador-500.png"],["Jabonera Dove","Laboratorio","2025/07/Jabonera-Dove.png"],["Jeringa","Farma","farma/jeringa.png"],["Tapón de jeringa","Farma","farma/tapon.png"]
+ ["Dispensador 500","Laboratorio","2025/07/Dispensador-500.png"],["Jabonera Dove","Laboratorio","2025/07/Jabonera-Dove.png"],["Salero Parrillero","Envases","x"],["Jeringa","Farma","farma/jeringa.png"],["Tapón de jeringa","Farma","farma/tapon.png"]
 ].map(([n,c,u])=>({name:n,cat:c,url:B+u}));
 
 // Tamaño en ml/g según el nombre en fosko.cl. Si no está aquí, el sitio no lo indica.
@@ -362,7 +369,7 @@ const SIZE = {"Pote VD 500g":500,"Pote VD 250g":250,"Pote HVN 1.9":1900,"Huracá
 // MARCAS: marca o producto del mercado -> envase FOSKO. Completar con la lista oficial.
 const MARCAS = {"Pote Cuadrado 800g":["bio sal","sal lobos","sal"],"Pote HVN":["hvn magnum","magnum"],"Pote HVN 1.9":["hvn magnum","magnum"]};
 const SUGERIDAS = ["Sal Lobos","Bio Sal","HVN Magnum","Balde","Vaso"];
-const CLAVES = {"Cuchara":"cuchara mango cucharita helado","Revolvedor":"revolvedor mango trago","Pincha":"pincha mango","Balde":"balde cubo manilla","Vaso":"vaso","Copa":"copa helado","Pote":"pote envase","Baúl":"baul cofre","Dispensador":"dispensador","Jabonera":"jabonera"};
+const CLAVES = {"Salero":"salero sal parrillero parrilla condimento","Cuchara":"cuchara mango cucharita helado","Revolvedor":"revolvedor mango trago","Pincha":"pincha mango","Balde":"balde cubo manilla","Vaso":"vaso","Copa":"copa helado","Pote":"pote envase","Baúl":"baul cofre","Dispensador":"dispensador","Jabonera":"jabonera"};
 const GROUPS = [
  {id:"Hasta 250",big:"250",unit:"ml/g o menos",h:46},{id:"251 a 500",big:"500",unit:"251 a 500 ml/g",h:62},
  {id:"501 a 1000",big:"1 L",unit:"501 a 1000 ml/g",h:78},{id:"Más de 1 L",big:"+1 L",unit:"más de un litro",h:96},
@@ -370,6 +377,7 @@ const GROUPS = [
 ];
 function norm(t){return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
 P.forEach(p=>{
+  if(p.name==="Salero Parrillero"){ p.url="img/salero-parrillero.png"; p.urlBody="img/salero-parrillero-cuerpo.png"; p.urlLid="img/salero-parrillero-tapa.png"; }
   p.size = SIZE[p.name]||0;
   p.group = p.cat==="Promocionales" ? "Promocionales" : p.cat==="Cucharas" ? "Cucharas" : !p.size ? "Otros formatos"
     : p.size<=250 ? "Hasta 250" : p.size<=500 ? "251 a 500" : p.size<=1000 ? "501 a 1000" : "Más de 1 L";
@@ -469,7 +477,7 @@ const SOLO_AUTO = [];
 // Baldes: llevan etiqueta IML o autoadhesiva (sin relieve). Los demás promocionales: solo color y logo en relieve.
 const PROMO_IML = ["Balde 3 Lts","Balde 5 Lts"];
 // Envases con opciones de etiqueta propias (los demás: IML o autoadhesiva a elección del cliente; promocionales: solo relieve).
-const OPCIONES = {"Baúl Rectangular":["IML","Autoadhesiva","Sin etiqueta"],"Baúl Rectangular 2 Lts":["Autoadhesiva","Sin etiqueta"],"Pote Piber":["Autoadhesiva","Sin etiqueta"],"Balde 3 Lts":["IML","Autoadhesiva"],"Balde 5 Lts":["IML","Autoadhesiva"],"Vaso 500 ml":["Serigrafía","Autoadhesiva"]};
+const OPCIONES = {"Baúl Rectangular":["IML","Autoadhesiva","Sin etiqueta"],"Baúl Rectangular 2 Lts":["Autoadhesiva","Sin etiqueta"],"Pote Piber":["Autoadhesiva","Sin etiqueta"],"Balde 3 Lts":["IML","Autoadhesiva"],"Balde 5 Lts":["IML","Autoadhesiva"],"Vaso 500 ml":["Serigrafía","Autoadhesiva"],"Salero Parrillero":["Autoadhesiva","IML","Sin etiqueta"]};
 // Promocionales con tapa de otro color (la bombilla siempre es translúcida).
 const CON_TAPA = ["Vaso 500 ml","Balde 3 Lts","Balde 5 Lts"];
 const OPT_INFO = {"IML":"Integrada al envase","Autoadhesiva":"Sticker sobre el envase","Sin etiqueta":"Envase liso, solo color","Serigrafía":"Impresión directa sobre el producto"};
@@ -549,7 +557,9 @@ function colorTxt(){ if(!isPromo()) return "Pote "+S.pote+" · Tapa "+S.tapa; co
 function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":S.tipo==="farma"?"Farma":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.nota?"\nNota: "+S.nota:""); }
 function pickEnvase(p){
   S.env=p; if(S.tipo==="farma"){ openFarma(p); return; } S.nota=""; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
-  const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
+  const im=$("pimg"), im2=$("pimg2"); im.alt=p.name; setColor(S.pote);
+  if(p.urlLid){ im.src=p.urlBody; im.className="tinted stack"; im2.src=p.urlLid; im2.className="tinted2 stack"; $("flood2").setAttribute("flood-color",S.tapa); }
+  else { im.src=p.url; im.className="tinted"; im2.className="hidden"; }
   let opts=OPCIONES[p.name]||[]; S.nota="";
   if(isPromo()){ if(opts.length){ S.etq=opts[0]; S.donde=opts[0]==="Serigrafía"?"Serigrafía":"Etiqueta"; } else { S.etq=""; S.donde="Relieve"; } }
   else { S.etq=S.etqW; if(opts.length && !opts.includes(S.etq)){ S.nota="Este envase no admite etiqueta "+S.etq+"; se ajustó a "+opts[0]+"."; S.etq=opts[0]; } }
@@ -577,7 +587,7 @@ $("cform").onsubmit=async e=>{
   const resumen="SOLICITUD DE MOCKUP DESDE APP FOSKO\nEmpresa: "+cpv.Cliente+"\n"+resumenSel()+"\nNombre: "+contacto.Nombre+"\nCargo: "+contacto.Cargo+"\nMail: "+contacto.Mail+"\nFono: "+contacto.Fono;
   $("cSend").disabled=true; $("cnote").textContent="Enviando…";
   try{
-    const r=await postJSON({cpv,contacto,decoracion:deco,resumen,fotoRef:"",logo:S.logo,mockup:"",urlProducto:S.env.url});
+    const r=await postJSON({cpv,contacto,decoracion:deco,resumen,fotoRef:"",logo:S.logo,mockup:"",urlProducto:new URL(S.env.url,location.href).href});
     if(r&&r.ok===false) throw 0;
     $("cform").querySelectorAll(".fld").forEach(x=>x.classList.add("hidden")); $("cSend").classList.add("hidden");
     $("cres").textContent="Solicitud enviada"+(r&&r.folio?" · N° "+r.folio:"")+"\n\n"+resumenSel();
@@ -696,7 +706,7 @@ $("qform").onsubmit=async e=>{
   lastSummary=[(VW.t==="farma"?"COTIZACIÓN FARMA DESDE APP":"COTIZACIÓN DESDE MOCKUP "+VW.f)+" (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)].join("\n");
   $("send").disabled=true; $("qnote").textContent="Enviando…";
   try{
-    const r=await postJSON({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:"",logo:"",mockup:"",urlProducto:VW.t==="farma"?S.env.url:$("vimg").src,folioRef:VW.f});
+    const r=await postJSON({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:"",logo:"",mockup:"",urlProducto:VW.t==="farma"?new URL(S.env.url,location.href).href:$("vimg").src,folioRef:VW.f});
     if(r&&r.ok===false) throw 0;
     $("qnote").textContent="Listo. Recibimos tu solicitud de cotización y te respondemos a la brevedad.";
   }catch(_){ $("qnote").textContent="No se pudo enviar. Revisa tu conexión e intenta de nuevo."; }
