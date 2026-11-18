@@ -201,7 +201,8 @@ svg.defs{position:absolute;width:0;height:0}
         <div class="wsub">Te armamos una imagen con tu marca sobre un producto FOSKO real.</div>
         <div class="cards">
           <button class="card" data-tipo="envase"><b>Envase</b><i>Potes, baúles, copas, dispensadores</i></button>
-          <button class="card" data-tipo="promo"><b>Promocional</b><i>Baldes, vasos y cucharas con tu logo</i></button>
+          <button class="card" data-tipo="promo"><b>Promocional</b><i>Baldes, vasos, copas y cucharas con tu logo</i></button>
+          <button class="card" data-tipo="farma"><b>Farma</b><i>Dispensadores, tapones y jeringas</i></button>
         </div>
       </div>
       <div class="pnl hidden" id="p1">
@@ -365,13 +366,14 @@ const CLAVES = {"Cuchara":"cuchara mango cucharita helado","Revolvedor":"revolve
 const GROUPS = [
  {id:"Hasta 250",big:"250",unit:"ml/g o menos",h:46},{id:"251 a 500",big:"500",unit:"251 a 500 ml/g",h:62},
  {id:"501 a 1000",big:"1 L",unit:"501 a 1000 ml/g",h:78},{id:"Más de 1 L",big:"+1 L",unit:"más de un litro",h:96},
- {id:"Promocionales",big:"Promocionales",unit:"baldes y vasos",wide:true},{id:"Cucharas",big:"Cucharas",unit:"con tu logo en el mango",wide:true},{id:"Otros formatos",big:"Otros formatos",unit:"tamaño a consultar",wide:true}
+ {id:"Promocionales",big:"Baldes y vasos",unit:"promocionales",wide:true},{id:"Copas",big:"Copas",unit:"helado y postres",wide:true},{id:"Cucharas",big:"Cucharas",unit:"con tu logo en el mango",wide:true},{id:"Farma",big:"Farma",unit:"dispensadores, tapones y jeringas",wide:true},{id:"Otros formatos",big:"Otros formatos",unit:"tamaño a consultar",wide:true}
 ];
 function norm(t){return t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");}
 P.forEach(p=>{
   p.size = SIZE[p.name]||0;
   p.group = p.cat==="Promocionales" ? "Promocionales" : p.cat==="Cucharas" ? "Cucharas" : !p.size ? "Otros formatos"
     : p.size<=250 ? "Hasta 250" : p.size<=500 ? "251 a 500" : p.size<=1000 ? "501 a 1000" : "Más de 1 L";
+  if(/^(Mini )?Copa/.test(p.name)) p.group="Copas"; else if(p.name.startsWith("Dispensador")) p.group="Farma";
   p.sizeLbl = p.size ? (p.size>=1000 ? (p.size/1000)+" L" : p.size+" ml/g") : "";
   const k = Object.keys(CLAVES).filter(w=>p.name.includes(w)).map(w=>CLAVES[w]).join(" ");
   p.tags = norm([p.name,p.cat,p.sizeLbl,k,(MARCAS[p.name]||[]).join(" ")].join(" "));
@@ -433,10 +435,11 @@ SUGERIDAS.forEach(s=>{
 $("q").oninput = renderGrid;
 
 
-const PROMO = g => g==="Promocionales"||g==="Cucharas";
-function vis(){ return P.filter(p=>S.tipo==="promo" ? PROMO(p.group) : !PROMO(p.group)); }
-function groupsFor(){ return GROUPS.filter(g=>S.tipo==="promo" ? PROMO(g.id) : !PROMO(g.id)); }
-function startCatalog(){ cat = S.tipo==="promo" ? "Todos" : null; renderGrid(); }
+const PROMO = g => g==="Promocionales"||g==="Cucharas"||g==="Copas";
+const esTipo = g => S.tipo==="promo" ? PROMO(g) : S.tipo==="farma" ? g==="Farma" : !PROMO(g) && g!=="Farma";
+function vis(){ return P.filter(p=>esTipo(p.group)); }
+function groupsFor(){ return GROUPS.filter(g=>esTipo(g.id)); }
+function startCatalog(){ cat = S.tipo!=="envase" ? "Todos" : null; renderGrid(); }
 // Hasta 5 colores dominantes; favorece colores de marca frente a grises
 function extract(img){
   const s=64,c=document.createElement("canvas"); c.width=c.height=s;
@@ -541,7 +544,7 @@ function drawLogo(){
   el.style.backgroundImage = rel ? "none" : "url("+S.logo+")"; el.style.setProperty("--m","url("+S.mask+")");
 }
 function colorTxt(){ return isPromo() ? "Color "+S.pote : "Pote "+S.pote+" · Tapa "+S.tapa; }
-function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.nota?"\nNota: "+S.nota:""); }
+function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":S.tipo==="farma"?"Farma":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.nota?"\nNota: "+S.nota:""); }
 function pickEnvase(p){
   S.env=p; S.nota=""; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
   const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
