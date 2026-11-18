@@ -225,6 +225,7 @@ svg.defs{position:absolute;width:0;height:0}
           <button class="card" data-etq="IML"><b>Etiqueta IML</b><i>Se funde con el envase al inyectarlo: queda integrada, no se despega.</i></button>
           <button class="card" data-etq="Autoadhesiva"><b>Autoadhesiva</b><i>Sticker pegado sobre el envase ya fabricado.</i></button>
         </div>
+        <div class="wsub">No todos los envases admiten IML; si el que elijas no lo admite, te lo avisamos y lo dejamos con autoadhesiva.</div>
       </div>
       <div class="pnl hidden" id="p4">
         <h1 class="wtitle">¿Dónde va tu <em>marca</em>?</h1>
@@ -243,7 +244,7 @@ svg.defs{position:absolute;width:0;height:0}
     <div class="top">
       <div class="brand">
         <button class="back" id="hBack" aria-label="Volver"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <span class="steps"><b>Paso 6</b> de 6</span>
+        <span class="steps" id="hStep"></span>
       </div>
       <h1>Elige el <em>envase</em> que quieres vestir</h1>
       <div class="search">
@@ -268,6 +269,7 @@ svg.defs{position:absolute;width:0;height:0}
     </div>
     <form class="cbody" id="cform" autocomplete="on">
       <div class="done" id="cres" style="font-size:15px"></div>
+      <div class="cards two hidden" id="cOpt"><button type="button" class="card" data-popt="Relieve" aria-pressed="true"><b>Relieve</b><i>Logo en relieve</i></button><button type="button" class="card" data-popt="IML" aria-pressed="false"><b>Etiqueta IML</b><i>Este balde admite IML</i></button></div>
       <label class="fld"><span>Empresa</span><input class="in" id="c_emp" type="text" autocomplete="organization" required></label>
       <label class="fld"><span>Nombre</span><input class="in" id="c_nom" type="text" autocomplete="name" required></label>
       <label class="fld"><span>Cargo <span class="opt">(opcional)</span></span><input class="in" id="c_car" type="text" autocomplete="organization-title"></label>
@@ -459,20 +461,27 @@ function resizeDataUrl(url,max,type){ return new Promise(res=>{ const i=new Imag
 // ================= Asistente de 6 pasos =================
 const ENDPOINT = "https://script.google.com/macros/s/AKfycbywljcd-byWuqxqWxvlcB05NSkL0NUCYrY8-NhW1yLrzh4wlho4U5GHJ8NIBFA8Aj5y/exec";
 const S = {tipo:"",marca:"",logo:null,mask:null,ratio:1,palette:[],pote:"#FBC10A",tapa:"#FFFFFF",etq:"",donde:"",step:0,env:null};
+// Envases que NO se pueden hacer con IML (solo autoadhesiva). Agregar aquí los nombres tal como aparecen en el catálogo.
+const SOLO_AUTO = [];
+// Promocionales que sí admiten IML (los demás solo color y logo en relieve).
+const PROMO_IML = ["Balde 3 Lts","Balde 5 Lts"];
 const PRESETS = ["#FFFFFF","#0D0D0E","#FBC10A","#C8102E","#0057B8","#1B8A3A"];
 const SCREENS = ["wiz","home","conf","quote","view","admin"];
 function show(id){ SCREENS.forEach(x=>$(x).classList.toggle("hidden",x!==id)); }
 const isPromo = ()=>S.tipo==="promo";
+const ETQ = ()=> isPromo() ? S.etq : (S.etq==="IML" && S.env && SOLO_AUTO.includes(S.env.name)) ? "Autoadhesiva" : S.etq;
+const TOTAL = ()=> isPromo() ? 4 : 6;
 function goStep(n){
   S.step=n; $("werr").textContent="";
   for(let i=0;i<5;i++) $("p"+i).classList.toggle("hidden",i!==n);
-  $("stepLbl").innerHTML="<b>Paso "+(n+1)+"</b> de 6";
+  $("stepLbl").innerHTML="<b>Paso "+(n+1)+"</b> de "+TOTAL();
   $("wBack").classList.toggle("hidden",n===0); $("wNext").classList.toggle("hidden",n===0);
-  $("wNext").textContent = n===4 ? "Elegir envase" : "Siguiente";
+  $("wNext").textContent = (n===4 || (n===2 && isPromo())) ? "Elegir producto" : "Siguiente";
+  $("p2").querySelector(".wtitle").innerHTML = isPromo() ? "Elige el <em>color</em>" : "Elige los <em>colores</em>";
   if(n===2){ $("gTapa").classList.toggle("hidden",isPromo()); $("lblPote").textContent=isPromo()?"producto":"pote"; mkSw("swPote","pote"); mkSw("swTapa","tapa"); }
   if(n===4) $("dEtq").textContent = isPromo() ? "Logo impreso" : "Etiqueta en la tapa";
 }
-document.querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{ S.tipo=b.dataset.tipo; goStep(1); });
+document.querySelectorAll("[data-tipo]").forEach(b=>b.onclick=()=>{ S.tipo=b.dataset.tipo; S.etq=""; S.donde=isPromo()?"Relieve":""; pressCards("data-etq",""); pressCards("data-donde",""); goStep(1); });
 function pressCards(attr,val){ document.querySelectorAll("["+attr+"]").forEach(x=>x.setAttribute("aria-pressed",String(x.getAttribute(attr)===val))); }
 document.querySelectorAll("[data-etq]").forEach(b=>b.onclick=()=>{ S.etq=b.dataset.etq; pressCards("data-etq",S.etq); });
 document.querySelectorAll("[data-donde]").forEach(b=>b.onclick=()=>{ S.donde=b.dataset.donde; pressCards("data-donde",S.donde); });
@@ -480,11 +489,12 @@ $("wBack").onclick=()=>goStep(Math.max(0,S.step-1));
 $("wNext").onclick=()=>{
   const e=$("werr");
   if(S.step===1){ S.marca=$("marca").value.trim(); if(!S.logo){e.textContent="Carga primero la foto de tu logo.";return;} if(!S.marca){e.textContent="Escribe el nombre de tu marca.";return;} }
+  if(S.step===2 && isPromo()){ $("q").value=""; startCatalog(); $("hStep").innerHTML="<b>Paso 4</b> de 4"; show("home"); return; }
   if(S.step===3 && !S.etq){ e.textContent="Elige un tipo de etiqueta."; return; }
-  if(S.step===4){ if(!S.donde){ e.textContent="Elige dónde va tu marca."; return; } $("q").value=""; startCatalog(); show("home"); return; }
+  if(S.step===4){ if(!S.donde){ e.textContent="Elige dónde va tu marca."; return; } $("q").value=""; startCatalog(); $("hStep").innerHTML="<b>Paso 6</b> de 6"; show("home"); return; }
   goStep(S.step+1);
 };
-$("hBack").onclick=()=>{ show("wiz"); goStep(4); };
+$("hBack").onclick=()=>{ show("wiz"); goStep(isPromo()?2:4); };
 
 // Paso 2: logo
 $("cam").onclick=()=>$("fileCam").click(); $("gal").onclick=()=>$("fileGal").click();
@@ -527,15 +537,20 @@ function drawLogo(){
   el.style.backgroundImage = rel ? "none" : "url("+S.logo+")"; el.style.setProperty("--m","url("+S.mask+")");
 }
 function colorTxt(){ return isPromo() ? "Color "+S.pote : "Pote "+S.pote+" · Tapa "+S.tapa; }
-function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+S.etq+"\nMarca en: "+S.donde; }
+function resumenSel(){ return "Marca: "+S.marca+"\nTipo: "+(isPromo()?"Promocional":"Envase")+"\nProducto FOSKO: "+S.env.name+"\n"+colorTxt()+"\nEtiqueta: "+(ETQ()||"N/A")+"\nMarca en: "+(S.donde==="Relieve"?"Relieve":S.donde||"Tapa")+(S.etq==="IML"&&ETQ()!=="IML"?"\nNota: este envase solo se fabrica con etiqueta autoadhesiva.":""); }
 function pickEnvase(p){
   S.env=p; $("cname").textContent=p.name+(p.sizeLbl?" · "+p.sizeLbl:"");
   const im=$("pimg"); im.src=p.url; im.alt=p.name; im.className="tinted"; setColor(S.pote);
+  if(isPromo()){ S.etq=""; S.donde="Relieve"; }
+  const bal=isPromo()&&PROMO_IML.includes(p.name); $("cOpt").classList.toggle("hidden",!bal); pressCards("data-popt","Relieve");
   $("hex").textContent=colorTxt(); drawLogo(); $("cres").textContent=resumenSel();
   $("cnote").textContent="Te enviamos el mockup a tu correo. Desde ahí podrás pedir tu cotización.";
   $("cSend").disabled=false; $("cSend").classList.remove("hidden"); $("cform").querySelectorAll(".fld").forEach(x=>x.classList.remove("hidden"));
   show("conf");
 }
+document.querySelectorAll("[data-popt]").forEach(b=>b.onclick=()=>{
+  const iml=b.dataset.popt==="IML"; S.etq=iml?"IML":""; S.donde=iml?"Etiqueta":"Relieve"; pressCards("data-popt",b.dataset.popt); drawLogo(); $("cres").textContent=resumenSel();
+});
 $("cBack").onclick=()=>show("home");
 async function postJSON(obj){
   const r=await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(obj)});
@@ -545,7 +560,7 @@ $("cform").onsubmit=async e=>{
   e.preventDefault();
   const g=id=>$(id).value.trim();
   const cpv={"Cliente":g("c_emp"),"Producto Fosko":S.env.name,"Producto Cliente":S.marca,"Tipo":isPromo()?"Promoción":"Línea","Color":colorTxt(),
-    "Etiqueta":S.etq,"En donde lleva la etiqueta?":S.donde==="Relieve"?"":(isPromo()?"Cuerpo":"Tapa"),"Lleva marca en relieve?":S.donde==="Relieve"?"SI":"NO"};
+    "Etiqueta":ETQ()||"N/A","En donde lleva la etiqueta?":S.donde==="Relieve"?"":(isPromo()?"Cuerpo":"Tapa"),"Lleva marca en relieve?":S.donde==="Relieve"?"SI":"NO"};
   const contacto={"Nombre":g("c_nom"),"Cargo":g("c_car"),"Mail":g("c_mail"),"Fono":g("c_fono")};
   const deco="SOLICITUD DE MOCKUP · "+resumenSel().replace(/\n/g," · ");
   const resumen="SOLICITUD DE MOCKUP DESDE APP FOSKO\nEmpresa: "+cpv.Cliente+"\n"+resumenSel()+"\nNombre: "+contacto.Nombre+"\nCargo: "+contacto.Cargo+"\nMail: "+contacto.Mail+"\nFono: "+contacto.Fono;
