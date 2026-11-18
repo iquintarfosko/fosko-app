@@ -199,10 +199,10 @@ svg.defs{position:absolute;width:0;height:0}
         <div class="sw" id="sw"></div>
         <label class="toggle hidden" id="lblRow"><span>Mostrar la foto como etiqueta</span><input type="checkbox" id="lblChk"></label>
         <div class="ai hidden" id="aiBox">
-          <b>Vestir con IA</b>
-          <input type="text" id="aiMarca" placeholder="Marca o producto (opcional)" aria-label="Marca o producto">
+          <b>Que FOSKO vista tu envase</b>
+          <input type="text" id="aiMarca" placeholder="¿Con qué marca? (ej. Sal Lobos)" aria-label="Marca o producto">
           <div class="seg sm" id="aiMode"><button type="button" data-v="opaco" aria-pressed="true">Opaco IML</button><button type="button" data-v="translucido" aria-pressed="false">Translúcido</button></div>
-          <button class="btn main" id="aiGo" type="button">Crear mi envase con IA</button>
+          <button class="btn main" id="aiGo" type="button">Pedir mi envase vestido</button>
           <button class="btn alt hidden" id="aiBack" type="button" style="flex:none;height:46px">Ver envase original</button>
         </div>
         <div class="row">
@@ -468,35 +468,27 @@ const GEMINI_ENDPOINT = "https://script.google.com/macros/s/AKfycbz6ZGrDH-Rj4gf1
 const AI = {img:null,mode:"opaco"};
 $("aiMode").querySelectorAll("button").forEach(b=>b.onclick=()=>{ AI.mode=b.dataset.v; $("aiMode").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b))); });
 function resizeDataUrl(url,max,type){ return new Promise(res=>{ const i=new Image(); i.onload=()=>{ const k=Math.min(1,max/Math.max(i.width,i.height)),c=document.createElement("canvas"); c.width=Math.round(i.width*k); c.height=Math.round(i.height*k); c.getContext("2d").drawImage(i,0,0,c.width,c.height); res(c.toDataURL(type||"image/jpeg",.85)); }; i.src=url; }); }
-$("aiGo").onclick = async ()=>{
-  if(!GEMINI_ENDPOINT){ $("hint").textContent="La IA aún no está conectada. Avisa a tu ejecutivo FOSKO."; return; }
-  if(!photoThumb){ $("hint").textContent="Primero toma una foto de la marca o producto."; return; }
-  $("busy").classList.remove("hidden"); $("aiGo").disabled=true;
-  try{
-    const cols=[...document.querySelectorAll("#sw button")].map(b=>b.style.background).slice(0,5);
-    const r = await fetch(GEMINI_ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify({productUrl:curP.url,productName:curP.name,refPhoto:photoThumb,marca:$("aiMarca").value.trim(),modo:AI.mode,color:$("hex").textContent,logo:LG.on?LG.thumb:""})});
-    const j = await r.json();
-    if(!j.ok) throw new Error(j.error||"sin respuesta");
-    AI.img = j.image; const im=$("pimg"); im.classList.remove("tinted"); im.src=AI.img;
-    $("lbl").classList.add("hidden"); $("logo").classList.add("hidden");
-    $("aiBack").classList.remove("hidden"); $("toQuote").classList.remove("hidden");
-    $("hint").textContent="Listo. Si te gusta, pide la cotización. Si no, ajusta y crea otra versión.";
-  }catch(e){ $("hint").textContent="No pudimos crear la imagen ("+e.message+"). Intenta otra vez."; }
-  $("busy").classList.add("hidden"); $("aiGo").disabled=false;
+$("aiGo").onclick = ()=>{
+  if(!photoThumb && !LG.on){ $("hint").textContent="Primero toma una foto de la marca o sube tu logo."; return; }
+  const m=$("aiMarca").value.trim();
+  if(!m){ $("hint").textContent="Escribe con qué marca quieres vestir el envase."; $("aiMarca").focus(); return; }
+  AI.marca=m;
+  $("toQuote").onclick();
+  if(!$("q_productoCliente").value) $("q_productoCliente").value=m;
+  $("qnote").textContent="Completa tus datos y envía: FOSKO prepara tu envase vestido y te lo manda con la cotización.";
 };
 $("aiBack").onclick = ()=>{ AI.img=null; const im=$("pimg"); im.src=curP.url; im.classList.add("tinted"); $("aiBack").classList.add("hidden"); drawLogo(); };
 
 // ---------- Cotización ----------
 // Para recibir pedidos completos (con foto y logo) en una planilla: pegar aquí la URL del receptor (ver receptor-cotizaciones.gs).
-const ENDPOINT = "";
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbywljcd-byWuqxqWxvlcB05NSkL0NUCYrY8-NhW1yLrzh4wlho4U5GHJ8NIBFA8Aj5y/exec";
 // Completar con los datos reales de FOSKO para que el pedido llegue solo:
 let photoThumb = null;
 const DEST_WHATSAPP = "";   // ej. "56912345678" (código país + número, sin +)
 const DEST_EMAIL = "";      // ej. "cotizaciones@fosko.cl"
 let curP = null, lastSummary = "";
 const _open = openStudio;
-openStudio = function(p){ curP = p; $("toQuote").classList.add("hidden"); AI.img=null; $("aiBox").classList.add("hidden"); $("aiBack").classList.add("hidden"); LG.on=false; drawLogo(); tabTo("color"); _open(p); };
+openStudio = function(p){ curP = p; $("toQuote").classList.add("hidden"); AI.img=null; AI.marca=""; $("aiBox").classList.add("hidden"); $("aiBack").classList.add("hidden"); LG.on=false; drawLogo(); tabTo("color"); _open(p); };
 const _pick = pick;
 pick = function(c,b){ _pick(c,b); $("toQuote").classList.remove("hidden"); };
 $("toQuote").onclick = ()=>{
@@ -599,14 +591,14 @@ $("qform").onsubmit = async e=>{
   if(!QV.ejecutivo){ $("qnote").textContent="Elige tu ejecutivo FOSKO."; return; }
   if(!QV.entregas){ $("qnote").textContent="Elige la cantidad de entregas al año."; return; }
   const {cpv,contacto,deco}=cpvData();
-  const lines=["COTIZACIÓN DESDE APP FOSKO (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),"Decoración (diseño en app): "+(AI.img?"Mockup creado con IA ("+AI.mode+"). ":"")+deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)];
+  const lines=["COTIZACIÓN DESDE APP FOSKO (formato CPV)",...Object.entries(cpv).map(([k,x])=>k+": "+x),"Decoración (diseño en app): "+(AI.marca?"PIDE ENVASE VESTIDO con la marca "+AI.marca+" (IML "+AI.mode+"). ":"")+deco,...Object.entries(contacto).map(([k,x])=>k+": "+x)];
   lastSummary=lines.join("\n");
   $("qsum").textContent=lastSummary; $("qsum").classList.remove("hidden"); $("copy").classList.remove("hidden");
   if(ENDPOINT){
     $("send").disabled=true; $("qnote").textContent="Enviando…";
     try{
       await fetch(ENDPOINT,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body:JSON.stringify({cpv,contacto,decoracion:deco,resumen:lastSummary,fotoRef:photoThumb||"",logo:LG.on?LG.thumb:"",mockup:AI.img?await resizeDataUrl(AI.img,1000,"image/jpeg"):"",urlProducto:curP.url})});
+        body:JSON.stringify({cpv,contacto,decoracion:(AI.marca?"PIDE ENVASE VESTIDO con la marca "+AI.marca+" (IML "+AI.mode+"). ":"")+deco,resumen:lastSummary,fotoRef:photoThumb||"",logo:LG.on?LG.thumb:"",mockup:AI.img?await resizeDataUrl(AI.img,1000,"image/jpeg"):"",urlProducto:curP.url})});
       $("qnote").textContent="Listo. Recibimos tu solicitud y te respondemos a la brevedad."; $("qsum").classList.add("hidden"); $("copy").classList.add("hidden");
     }catch(_){ $("qnote").textContent="No se pudo enviar. Copia el resumen y envíalo a tu ejecutivo FOSKO."; }
     $("send").disabled=false; return;
